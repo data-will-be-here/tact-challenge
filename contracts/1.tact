@@ -5,7 +5,7 @@ import "@stdlib/deploy";
   Implement counter contract that will have 2 opcodes ('Add' / 'Subtract'),
   which add or subtract the sent number (int32) with the number that stored in the state.
   Also, its needed to implement one getter with name "counter" to get the number from the store.
-*/
+*/ 
 
 message Add {
   queryId: Int as uint64;
