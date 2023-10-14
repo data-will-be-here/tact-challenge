@@ -26,14 +26,14 @@ import "@stdlib/deploy";
   To be exact: any jettons (A or B) received from the admin are "added". Admin can't swap.
 */
 
-message(0x7362d09c) TokenNotification {
+message(0x7362d09c) JettonNotification {
     queryId: Int as uint64;
     amount: Int as coins;
     from: Address;
     forwardPayload: Slice as remaining;
 }
 
-message(0xf8a7ea5) TokenTransfer {
+message(0xf8a7ea5) JettonTransfer {
     queryId: Int as uint64;
     amount: Int as coins;
     destination: Address;
@@ -45,48 +45,48 @@ message(0xf8a7ea5) TokenTransfer {
 
 contract Task3 with Deployable {
   owner: Address;
-  a: Int;
-  b: Int;
-  jAddressA: Address;
-  jAddressB: Address;
+  aAmount: Int;
+  bAmount: Int;
+  jettonAddressA: Address;
+  jettonAddressB: Address;
   decimal: Int;
 
-  init(admin: Address, newJAddressA: Address, newJAddressB: Address) {
+  init(admin: Address, newJettonAddressA: Address, newJettonAddressB: Address) {
     self.owner = admin;
-    self.jAddressA = newJAddressA;
-    self.jAddressB = newJAddressB;
-    self.a = 0; // 10
-    self.b = 0; // 2
+    self.jettonAddressA = newJettonAddressA;
+    self.jettonAddressB = newJettonAddressB;
+    self.aAmount = 0;
+    self.bAmount = 0;
     self.decimal = 1000000000;
   }
 
-  receive(msg: TokenNotification) {
+  receive(msg: JettonNotification) {
     let jettonAddress: Address = sender();
-    self.onlyPaired(jettonAddress);
+    require(jettonAddress == self.jettonAddressA && jettonAddress == self.jettonAddressB, "not an paired jetton");
     let sender: Address = msg.from;
     let amount: Int = msg.amount;
     let jettonA: Bool = false;
-    if(jettonAddress == self.jAddressA) { jettonA = true; }
+    if(jettonAddress == self.jettonAddressA) { jettonA = true; }
     if(sender == self.owner) {
-      if(jettonA) { self.a = self.a + amount; }
-      else { self.b = self.b + amount; }
+      if(jettonA) { self.aAmount = self.aAmount + amount; }
+      else { self.bAmount = self.bAmount + amount; }
     } else {
       let price: Int = self.price(jettonAddress); // 5000000000
       let to_recv: Int = (amount * price) / self.decimal; // 1000000000 * 5000000000 = 5000000000000000000 / 1000000000
       let dest: Address = jettonAddress;
       if(jettonA) {
-        if(self.b < to_recv) {
-          dest = self.jAddressA;
+        if(self.bAmount < to_recv) {
+          dest = self.jettonAddressA;
           to_recv = amount;
         } else {
-          self.a = self.a - amount;
+          self.aAmount = self.aAmount - amount;
         }
       } else {
-        if(self.a < to_recv) {
-          dest = self.jAddressB;
+        if(self.aAmount < to_recv) {
+          dest = self.jettonAddressB;
           to_recv = amount;
         } else {
-          self.b = self.b - amount;
+          self.bAmount = self.bAmount - amount;
         }
       }
       
@@ -95,39 +95,35 @@ contract Task3 with Deployable {
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
             bounce: true, 
-            body: TokenTransfer {
-                queryId: 0,
+            body: JettonTransfer {
+                queryId: msg.queryId,
                 amount: to_recv,
                 destination: sender,
                 responseDestination: sender,
                 customPayload: null,
-                forwardTonAmount: ton("0.01"),
-                forwardPayload: emptySlice()
+                forwardTonAmount: context().value,
+                forwardPayload: msg.forwardPayload
             }.toCell()
             }
         );
     }
   } 
   
-  fun onlyPaired(token: Address) {
-    require(token == self.jAddressA || token == self.jAddressB, "not an paired jetton");
-  }
-  
-  get fun price(token: Address): Int { 
-    if(token == self.jAddressA) {
-      return self.a * self.decimal / self.b; // amountOfJettonAOnContract * decimal / amountOfJettonBOnContract
-    } else if(token == self.jAddressB) {
-      return self.b * self.decimal / self.a; //
+  get fun price(jetton: Address): Int { 
+    if(jetton == self.jettonAddressA) {
+      return self.aAmount * self.decimal / self.bAmount; // amountOfJettonAOnContract * decimal / amountOfJettonBOnContract 10 * 1000000000 / 2 = 5000000000
+    } else if(jetton == self.jettonAddressB) {
+      return self.bAmount * self.decimal / self.aAmount; //
     } else {
       return 0;
     }
   }
   
-  get fun balance(token: Address): Int { 
-    if(token == self.jAddressA) {
-      return self.a;
-    } else if(token == self.jAddressB) { 
-      return self.b;
+  get fun balance(jetton: Address): Int { 
+    if(jetton == self.jettonAddressA) {
+      return self.aAmount;
+    } else if(jetton == self.jettonAddressB) { 
+      return self.bAmount;
     } else {
       return 0;
     } 
