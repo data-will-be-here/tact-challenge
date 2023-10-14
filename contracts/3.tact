@@ -1,20 +1,29 @@
 import "@stdlib/deploy";
 
 /*
-TASK 3 - Dex contract 
-  Create a simple Jetton dex contract that trades one pair of tokens A and B.
-  The price of tokens depends on the amount of tokens that smartcontract has.
-  So, if smartcontract has 10 tokens A and 2 tokens B, then after sending 1 token B you will receive 5 tokens A.
+  TASK 3 - DEX
+  Create a simple jetton dex contract that trades one pair of jettons: A and B.
+  The price of jettons depends on the amount of jettons that smart contract has.
+  Therefore, the smart contract needs to keep track of how much jettons it has.
   
-  If the user will pool don't have enough tokens to trade
-  (for example, someone will send 99999 B tokens and dex pool has only 10 of tokens A),
-  then return sent ("B" in our example) tokens back to the user.
+  Price for the jetton A in swap B->A should be calculated by formula "amountOfJettonAOnContract * decimal / amountOfJettonBOnContract".
+  Decimals are only needed for price accuracy. It should be set as 1e9.
+  So, if smart contract has 10 of jetton A and 2 of jetton B, then after sending 1 jetton B you should receive 5 of jettons A.
 
-  Implement a getter that will give the number of tokens in the pool and
-  one more to get the price of token A or token B.
+  If smart contract pool doesn't have enough jettons to trade
+  (for example someone sends 99999 jettons of B, but dex pool only has 10 of jettons A),
+  then sent incoming jettons (B, in our example) back to the sender.
+
+  If smart contract receives a different jetton (neither A nor B) then throw an error.
+
+  Implement a getter that returns the number of jettons in the pool and
+  one more to get the price of jetton A or jetton B.
+  Getters' behavior with incorrect parameter (address other than that of jetton A or B)
+  is undefined (there are no such tests).
   
-  Note
-  Admin can add token A and token B just by sending them to smartcontract (we need to set the initial supply for the pool).
+  Note:
+  Admin can add jettons A and B just by sending them to the smart contract (we need to add initial supply to the pool for it to be functional).
+  To be exact: any jettons (A or B) received from the admin are "added". Admin can't swap.
 */
 
 message(0x7362d09c) TokenNotification {
@@ -58,9 +67,9 @@ contract Task3 with Deployable {
     let amount: Int = msg.amount;
     let jettonA: Bool = false;
     if(jettonAddress == self.jAddressA) { jettonA = true; }
-    if(sender == self.owner && (self.a == 0 || self.b == 0)) {
-      if(jettonA && self.a == 0) { self.a = self.a + amount; }
-      else if(self.b == 0) { self.b = self.b + amount; }
+    if(sender == self.owner) {
+      if(jettonA) { self.a = self.a + amount; }
+      else { self.b = self.b + amount; }
     } else {
       let price: Int = self.price(jettonAddress); // 5000000000
       let to_recv: Int = (amount * price) / self.decimal; // 1000000000 * 5000000000 = 5000000000000000000 / 1000000000
@@ -106,9 +115,9 @@ contract Task3 with Deployable {
   
   get fun price(token: Address): Int { 
     if(token == self.jAddressA) {
-      return (self.b / self.a) * self.decimal; // 2 / 10 = 200000000
+      return self.a * self.decimal / self.b; // amountOfJettonAOnContract * decimal / amountOfJettonBOnContract
     } else if(token == self.jAddressB) {
-      return (self.a / self.b) * self.decimal; // 10 / 2 = 5000000000
+      return self.b * self.decimal / self.a; //
     } else {
       return 0;
     }
@@ -121,6 +130,6 @@ contract Task3 with Deployable {
       return self.b;
     } else {
       return 0;
-    }
+    } 
   }
 }
