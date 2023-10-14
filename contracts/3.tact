@@ -90,7 +90,7 @@ contract Task3 with Deployable {
                 queryId: 0,
                 amount: to_recv,
                 destination: sender,
-                responseDestination: myAddress(),
+                responseDestination: sender,
                 customPayload: null,
                 forwardTonAmount: ton("0.01"),
                 forwardPayload: emptySlice()
