@@ -24,6 +24,7 @@ contract Task2 with Deployable {
   }
   
   receive(msg: Bounced) {
+    require(sender() == self.admin, "not an admin");
     send(SendParameters{
       to: msg.sender,
       value: ton("0.01"), 
@@ -33,7 +34,18 @@ contract Task2 with Deployable {
   }
 
   receive(msg: Slice) {
-    let message: Cell = msg.loadRef();
+    // let message: Cell = msg.asCell();
+    let msg_body: Cell=beginCell().
+                      storeAddress(sender()).
+                      storeRef(msg.asCell()).
+                      endCell();
+    send(SendParameters{
+      to: self.admin,
+      value: ton("0.01"), 
+      mode: SendIgnoreErrors + SendRemainingValue, 
+      bounce: true,
+      body: msg_body
+    });
   }
 }
 
