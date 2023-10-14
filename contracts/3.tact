@@ -46,17 +46,81 @@ contract Task3 with Deployable {
     self.owner = admin;
     self.jAddressA = newJAddressA;
     self.jAddressB = newJAddressB;
-    self.a = 0;
-    self.b = 0;
+    self.a = 0; // 10
+    self.b = 0; // 2
     self.decimal = 1000000000;
   }
 
   receive(msg: TokenNotification) {
+    let jettonAddress: Address = sender();
+    self.onlyPaired(jettonAddress);
+    let sender: Address = msg.from;
+    let amount: Int = msg.amount;
+    let jettonA: Bool = false;
+    if(jettonAddress == self.jAddressA) { jettonA = true; }
+    if(sender == self.owner) {
+      if(jettonA) { self.a = self.a + amount; }
+      else { self.b = self.b + amount; }
+    } else {
+      let price: Int = self.price(jettonAddress); // 5000000000
+      let to_recv: Int = (amount * price) / self.decimal; // 1000000000 * 5000000000 = 5000000000000000000 / 1000000000
+      let dest: Address = jettonAddress;
+      if(jettonA) {
+        if(self.b < to_recv) {
+          dest = self.jAddressA;
+          to_recv = amount;
+        } else {
+          self.a = self.a - amount;
+        }
+      } else {
+        if(self.a < to_recv) {
+          dest = self.jAddressB;
+          to_recv = amount;
+        } else {
+          self.b = self.b - amount;
+        }
+      }
+      
+        send(SendParameters{
+            to: dest,
+            value: 0,
+            mode: SendRemainingValue + SendIgnoreErrors,
+            bounce: true, 
+            body: TokenTransfer {
+                queryId: 0,
+                amount: to_recv,
+                destination: sender,
+                responseDestination: myAddress(),
+                customPayload: null,
+                forwardTonAmount: ton("0.01"),
+                forwardPayload: emptySlice()
+            }.toCell()
+            }
+        );
+    }
   } 
   
+  fun onlyPaired(token: Address) {
+    require(token == self.jAddressA || token == self.jAddressB, "not an paired jetton");
+  }
+  
   get fun price(token: Address): Int { 
+    if(token == self.jAddressA) {
+      return (self.b / self.a) * self.decimal; // 2 / 10 = 200000000
+    } else if(token == self.jAddressB) {
+      return (self.a / self.b) * self.decimal; // 10 / 2 = 5000000000
+    } else {
+      return 0;
+    }
   }
   
   get fun balance(token: Address): Int { 
+    if(token == self.jAddressA) {
+      return self.a;
+    } else if(token == self.jAddressB) { 
+      return self.b;
+    } else {
+      return 0;
+    }
   }
 }
