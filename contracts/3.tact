@@ -58,9 +58,9 @@ contract Task3 with Deployable {
     let amount: Int = msg.amount;
     let jettonA: Bool = false;
     if(jettonAddress == self.jAddressA) { jettonA = true; }
-    if(sender == self.owner) {
-      if(jettonA) { self.a = self.a + amount; }
-      else { self.b = self.b + amount; }
+    if(sender == self.owner && (self.a == 0 || self.b == 0)) {
+      if(jettonA && self.a == 0) { self.a = self.a + amount; }
+      else if(self.b == 0) { self.b = self.b + amount; }
     } else {
       let price: Int = self.price(jettonAddress); // 5000000000
       let to_recv: Int = (amount * price) / self.decimal; // 1000000000 * 5000000000 = 5000000000000000000 / 1000000000
