@@ -70,23 +70,34 @@ contract Task3 with Deployable {
     if(sender == self.owner) {
       if(jettonA) { self.a = self.a + amount; }
       else { self.b = self.b + amount; }
+      send(SendParameters{
+        to: sender,
+        value: 0, 
+        mode: SendIgnoreErrors + SendRemainingValue, 
+        bounce: true
+    });
     } else {
-      let price: Int = self.price(jettonAddress); // 5000000000
-      let to_recv: Int = (amount * price) / self.decimal; // 1000000000 * 5000000000 = 5000000000000000000 / 1000000000
+      let to_recv: Int = 0;
       let dest: Address = jettonAddress;
-      if(jettonA) {
+      if(jettonA) { // send B tokens, plus A tokens
+      to_recv = (self.b * self.decimal / self.a) * amount / self.decimal; // (2 * 1000000000 / 10) * 5 / 1000000000
+      dest = self.jAddressB;
         if(self.b < to_recv) {
           dest = self.jAddressA;
           to_recv = amount;
         } else {
-          self.a = self.a - amount;
+          self.a = self.a + amount;
+          self.b = self.b - to_recv;
         }
       } else {
+      to_recv = (self.a * self.decimal / self.b) * amount / self.decimal; // (10 * 1000000000 / 2) * 1 / 1000000000 = 5
+      dest = self.jAddressA;
         if(self.a < to_recv) {
           dest = self.jAddressB;
           to_recv = amount;
         } else {
-          self.b = self.b - amount;
+          self.b = self.b + amount;
+          self.a = self.a - to_recv;
         }
       }
       
