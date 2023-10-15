@@ -82,7 +82,7 @@ contract Task3 with Deployable {
       if(jettonA) { // send B tokens, plus A tokens
       to_recv = (self.b * self.decimal / self.a) * amount / self.decimal; // (2 * 1000000000 / 10) * 5 / 1000000000
       dest = self.jAddressB;
-        if(self.b < to_recv) {
+        if(self.b < to_recv || to_recv == 0) {
           dest = self.jAddressA;
           to_recv = amount;
         } else {
@@ -92,7 +92,7 @@ contract Task3 with Deployable {
       } else {
       to_recv = (self.a * self.decimal / self.b) * amount / self.decimal; // (10 * 1000000000 / 2) * 1 / 1000000000 = 5
       dest = self.jAddressA;
-        if(self.a < to_recv) {
+        if(self.a < to_recv || to_recv == 0) {
           dest = self.jAddressB;
           to_recv = amount;
         } else {
@@ -100,7 +100,6 @@ contract Task3 with Deployable {
           self.a = self.a - to_recv;
         }
       }
-      
         send(SendParameters{
             to: dest,
             value: 0,
