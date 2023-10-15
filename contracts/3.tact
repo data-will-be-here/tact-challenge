@@ -61,17 +61,18 @@ contract Task3 with Deployable {
   }
 
   receive(msg: TokenNotification) {
+    require(context().value > ton("0.05"), "small gas");
     let jettonAddress: Address = sender();
     require(jettonAddress == self.jAddressA || jettonAddress == self.jAddressB, "not an paired jetton");
-    let sender: Address = msg.from;
+    let user: Address = msg.from;
     let amount: Int = msg.amount;
     let jettonA: Bool = false;
     if(jettonAddress == self.jAddressA) { jettonA = true; }
-    if(sender == self.owner) {
+    if(user == self.owner) {
       if(jettonA) { self.a = self.a + amount; }
       else { self.b = self.b + amount; }
       send(SendParameters{
-        to: sender,
+        to: user,
         value: 0, 
         mode: SendRemainingValue + SendIgnoreErrors,
         bounce: true
@@ -108,8 +109,8 @@ contract Task3 with Deployable {
             body: TokenTransfer {
                 queryId: 0,
                 amount: to_recv,
-                destination: sender,
-                responseDestination: sender,
+                destination: user,
+                responseDestination: user,
                 customPayload: emptyCell(),
                 forwardTonAmount: 0,
                 forwardPayload: emptySlice()
