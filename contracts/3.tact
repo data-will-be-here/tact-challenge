@@ -73,7 +73,7 @@ contract Task3 with Deployable {
       send(SendParameters{
         to: sender,
         value: 0, 
-        mode: SendIgnoreErrors + SendRemainingValue, 
+        mode: SendRemainingValue + SendIgnoreErrors,
         bounce: true
     });
     } else {
@@ -106,7 +106,7 @@ contract Task3 with Deployable {
             mode: SendRemainingValue + SendIgnoreErrors,
             bounce: true, 
             body: TokenTransfer {
-                queryId: msg.queryId,
+                queryId: 0,
                 amount: to_recv,
                 destination: sender,
                 responseDestination: sender,
