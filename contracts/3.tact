@@ -110,9 +110,9 @@ contract Task3 with Deployable {
                 amount: to_recv,
                 destination: sender,
                 responseDestination: sender,
-                customPayload: null,
+                customPayload: emptyCell(),
                 forwardTonAmount: 0,
-                forwardPayload: msg.forwardPayload
+                forwardPayload: emptySlice()
             }.toCell()
             }
         );
