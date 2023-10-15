@@ -62,7 +62,7 @@ contract Task3 with Deployable {
 
   receive(msg: TokenNotification) {
     let jettonAddress: Address = sender();
-    //require(jettonAddress == self.jAddressA || jettonAddress == self.jAddressB, "not an paired jetton");
+    require(jettonAddress == self.jAddressA || jettonAddress == self.jAddressB, "not an paired jetton");
     let sender: Address = msg.from;
     let amount: Int = msg.amount;
     let jettonA: Bool = false;
@@ -80,7 +80,7 @@ contract Task3 with Deployable {
       let to_recv: Int = 0;
       let dest: Address = jettonAddress;
       if(jettonA) { // send B tokens, plus A tokens
-      to_recv = (self.b * self.decimal / self.a) * amount / self.decimal; // (2 * 1000000000 / 10) * 5 / 1000000000
+      to_recv = self.getAmountToSend(amount, true);
       dest = self.jAddressB;
         if(self.b < to_recv || to_recv == 0) {
           dest = self.jAddressA;
@@ -90,7 +90,7 @@ contract Task3 with Deployable {
           self.b = self.b - to_recv;
         }
       } else {
-      to_recv = (self.a * self.decimal / self.b) * amount / self.decimal; // (10 * 1000000000 / 2) * 1 / 1000000000 = 5
+      to_recv = self.getAmountToSend(amount, false);
       dest = self.jAddressA;
         if(self.a < to_recv || to_recv == 0) {
           dest = self.jAddressB;
@@ -119,6 +119,11 @@ contract Task3 with Deployable {
     }
   } 
   
+  fun getAmountToSend(amountOfTokenToSwap: Int, routeB: Bool): Int {
+    if(routeB) { return (self.b * self.decimal / self.a) * amountOfTokenToSwap / self.decimal; } // B in A->B
+    return (self.a * self.decimal / self.b) * amountOfTokenBToSwap / self.decimal; // A in B->A
+  }
+
   get fun price(token: Address): Int { 
     if(token == self.jAddressA) {
       return self.a * self.decimal / self.b; // amountOfJettonAOnContract * decimal / amountOfJettonBOnContract 10 * 1000000000 / 2 = 5000000000
