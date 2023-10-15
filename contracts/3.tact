@@ -62,7 +62,7 @@ contract Task3 with Deployable {
 
   receive(msg: TokenNotification) {
     let jettonAddress: Address = sender();
-    require(jettonAddress == self.jAddressA || jettonAddress == self.jAddressB, "not an paired jetton");
+    //require(jettonAddress == self.jAddressA || jettonAddress == self.jAddressB, "not an paired jetton");
     let sender: Address = msg.from;
     let amount: Int = msg.amount;
     let jettonA: Bool = false;
