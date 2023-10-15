@@ -69,13 +69,13 @@ contract Task3 with Deployable {
     if(jettonAddress == self.jAddressA) { jettonA = true; }
     if(user == self.owner) {
       if(jettonA) { self.a = self.a + amount; }
-      else { self.b = self.b + amount; }
-      send(SendParameters{
-        to: user,
-        value: 0, 
-        mode: SendRemainingValue + SendIgnoreErrors,
-        bounce: true
-    });
+        else { self.b = self.b + amount; }
+        send(SendParameters{
+          to: user,
+          value: 0, 
+          mode: SendRemainingValue + SendIgnoreErrors,
+          bounce: true
+      });
     } else {
       let to_recv: Int = 0;
       let dest: Address = jettonAddress;
@@ -102,16 +102,16 @@ contract Task3 with Deployable {
       }
         send(SendParameters{
             to: dest,
-            value: 0,
+            value: ton("0.05"),
             mode: SendRemainingValue + SendIgnoreErrors,
             bounce: true, 
             body: TokenTransfer {
-                queryId: (msg.queryId + 1),
+                queryId: 0,
                 amount: to_recv,
                 destination: user,
                 responseDestination: user,
                 customPayload: emptyCell(),
-                forwardTonAmount: 0,
+                forwardTonAmount: ton("0.05"),
                 forwardPayload: emptySlice()
             }.toCell()
             }
