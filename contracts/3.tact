@@ -61,7 +61,6 @@ contract Task3 with Deployable {
   }
 
   receive(msg: TokenNotification) {
-    require(context().value > ton("0.05"), "small gas");
     let jettonAddress: Address = sender();
     require(jettonAddress == self.jAddressA || jettonAddress == self.jAddressB, "not an paired jetton");
     let user: Address = msg.from;
