@@ -121,7 +121,7 @@ contract Task3 with Deployable {
   
   fun getAmountToSend(amountOfTokenToSwap: Int, routeB: Bool): Int {
     if(routeB) { return (self.b * self.decimal / self.a) * amountOfTokenToSwap / self.decimal; } // B in A->B
-    return (self.a * self.decimal / self.b) * amountOfTokenBToSwap / self.decimal; // A in B->A
+    return (self.a * self.decimal / self.b) * amountOfTokenToSwap / self.decimal; // A in B->A
   }
 
   get fun price(token: Address): Int { 
