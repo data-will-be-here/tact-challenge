@@ -70,6 +70,12 @@ contract Task3 with Deployable {
     if(sender == self.owner) {
       if(jettonA) { self.a = self.a + amount; }
       else { self.b = self.b + amount; }
+      send(SendParameters{
+        to: sender,
+        value: 0, 
+        mode: SendIgnoreErrors + SendRemainingValue, 
+        bounce: true
+    });
     } else {
       let to_recv: Int = 0;
       let dest: Address = jettonAddress;
@@ -97,7 +103,7 @@ contract Task3 with Deployable {
       
         send(SendParameters{
             to: dest,
-            value: context().value,
+            value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
             bounce: true, 
             body: TokenTransfer {
@@ -106,7 +112,7 @@ contract Task3 with Deployable {
                 destination: sender,
                 responseDestination: sender,
                 customPayload: null,
-                forwardTonAmount: context().value,
+                forwardTonAmount: 0,
                 forwardPayload: msg.forwardPayload
             }.toCell()
             }
