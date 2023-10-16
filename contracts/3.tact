@@ -75,10 +75,10 @@ contract Task3 with Deployable {
           bounce: true
       });
     } else {
-      let to_recv: Int = 0;
+      let to_recv: Int;
       let dest: Address = self.jAddressB;
       if(jettonAddress == self.jAddressA) { // send B tokens, plus A tokens
-      to_recv = self.getAmountToSend(amount, true);
+        to_recv = (self.b * self.decimal / self.a) * amountOfTokenToSwap / self.decimal;
         if(self.b < to_recv || to_recv == 0) {
           dest = self.jAddressA;
           to_recv = amount;
@@ -87,7 +87,7 @@ contract Task3 with Deployable {
           self.b = self.b - to_recv;
         }
       } else {
-      to_recv = self.getAmountToSend(amount, false);
+        to_recv = (self.a * self.decimal / self.b) * amountOfTokenToSwap / self.decimal;
         if(self.a < to_recv || to_recv == 0) {
           to_recv = amount;
         } else {
@@ -114,11 +114,6 @@ contract Task3 with Deployable {
         );
     }
   } 
-  
-  fun getAmountToSend(amountOfTokenToSwap: Int, routeB: Bool): Int {
-    if(routeB) { return (self.b * self.decimal / self.a) * amountOfTokenToSwap / self.decimal; } // B in A->B
-    return (self.a * self.decimal / self.b) * amountOfTokenToSwap / self.decimal; // A in B->A
-  }
 
   get fun price(token: Address): Int { 
     if(token == self.jAddressB) {
