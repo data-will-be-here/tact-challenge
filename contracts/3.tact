@@ -102,16 +102,16 @@ contract Task3 with Deployable {
       }
         send(SendParameters{
             to: dest,
-            value: ton("0.05"),
+            value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
             bounce: true, 
             body: TokenTransfer {
                 queryId: 0,
                 amount: to_recv,
                 destination: user,
-                responseDestination: user,
-                customPayload: emptyCell(),
-                forwardTonAmount: ton("0.05"),
+                responseDestination: myAddress(),
+                customPayload: null,
+                forwardTonAmount: ton("0.01"),
                 forwardPayload: emptySlice()
             }.toCell()
             }
