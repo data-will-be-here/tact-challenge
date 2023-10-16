@@ -103,11 +103,11 @@ contract Task4 with Deployable {
   }
 
   get fun time(): Int {
-    return self.unlockTime - now(); // 
+    return 0;//self.unlockTime - now(); // 
   }
 
   get fun nft(): Address? {
-    return self.nft;
+    return null;//self.nft;
   }
 
   get fun owner(): Address? {
