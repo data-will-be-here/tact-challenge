@@ -84,23 +84,25 @@ contract Task4 with Deployable {
     if(self.time() > 0) {
      self.reply("NFT is still locked".asComment());
     } else {
+        let user: Address = self.owner;
+        let nftAddress: Address = self.nft;
+        self.unlockTime = 0;
+        self.owner = null;
+        self.nft = null;
         send(SendParameters{
-            to: self.nft!!,
+            to: nftAddress,
             bounce: true,
             value: 0,
             body: Transfer{
               queryId: 0,           
-              newOwner: self.owner!!, 
-              responseDestination: self.owner!!,// self.owner!!, f
+              newOwner: user, 
+              responseDestination: user,// self.owner!!, f
               customPayload: null, 
               forwardAmount: ton("0.01"),
               forwardPayload: emptySlice()
             }.toCell(),
             mode: SendRemainingBalance + SendIgnoreErrors 
         });
-        self.owner = null;
-        self.nft = null;
-        self.unlockTime = 0;
     }
   }
 
