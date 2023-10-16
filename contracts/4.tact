@@ -67,7 +67,7 @@ contract Task4 with Deployable {
               newOwner: msg.prevOwner, 
               responseDestination: msg.prevOwner, 
               customPayload: null, 
-              forwardAmount: ton("0.01"),
+              forwardAmount: 0,
               forwardPayload: emptySlice()
             }.toCell(),
             mode: SendRemainingValue + SendIgnoreErrors
@@ -97,7 +97,7 @@ contract Task4 with Deployable {
               newOwner: self.owner!!, 
               responseDestination: sender(),// self.owner!!, f
               customPayload: null, 
-              forwardAmount: ton("0.01"),
+              forwardAmount: 0,
               forwardPayload: emptySlice()
             }.toCell(),
             mode: SendRemainingBalance + SendIgnoreErrors 
