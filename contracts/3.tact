@@ -53,8 +53,8 @@ contract Task3 with Deployable {
 
   init(admin: Address, newJAddressA: Address, newJAddressB: Address) {
     self.owner = admin;
-    self.jAddressA = newJAddressA;
-    self.jAddressB = newJAddressB;
+    self.jAddressA = newJAddressA; // wallet address
+    self.jAddressB = newJAddressB; // wallet address
     self.a = 0; // 10
     self.b = 0; // 2
     self.decimal = 1000000000;
@@ -125,9 +125,9 @@ contract Task3 with Deployable {
   }
 
   get fun price(token: Address): Int { 
-    if(token == self.jAddressA) {
+    if(token == self.jAddressB) {
       return self.a * self.decimal / self.b; // amountOfJettonAOnContract * decimal / amountOfJettonBOnContract 10 * 1000000000 / 2 = 5000000000
-    } else if(token == self.jAddressB) {
+    } else if(token == self.jAddressA) {
       return self.b * self.decimal / self.a; //
     } else {
       return 0;
