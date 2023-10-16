@@ -84,9 +84,6 @@ contract Task4 with Deployable {
     if(self.time() > 0) {
       self.reply("NFT is still locked".asComment());
     } else {
-        self.owner = null;
-        self.nft = null;
-        self.unlockTime = 0;
         send(SendParameters{
             to: self.nft!!,
             bounce: true,
@@ -101,6 +98,9 @@ contract Task4 with Deployable {
             }.toCell(),
             mode: SendRemainingBalance + SendIgnoreErrors 
         });
+        self.owner = null;
+        self.nft = null;
+        self.unlockTime = 0;
     }
   }
 
