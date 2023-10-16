@@ -57,17 +57,17 @@ contract Task4 with Deployable {
   }
 
   receive(msg: OwnershipAssigned) {
-    if(self.owner != null) {
+    if(self.nft != null) {
         send(SendParameters{
             to: self.nft!!,
             bounce: true,
             value: 0,
             body: Transfer{
               queryId: 0,           
-              newOwner: self.owner!!, 
-              responseDestination: self.owner!!, 
+              newOwner: msg.prevOwner, 
+              responseDestination: msg.prevOwner, 
               customPayload: null, 
-              forwardAmount: ton("0.01"),
+              forwardAmount: 0,
               forwardPayload: emptySlice()
             }.toCell(),
             mode: SendRemainingValue + SendIgnoreErrors
@@ -94,7 +94,7 @@ contract Task4 with Deployable {
               newOwner: self.owner!!, 
               responseDestination: self.owner!!, 
               customPayload: null, 
-              forwardAmount: ton("0.01"),
+              forwardAmount: 0,
               forwardPayload: emptySlice()
             }.toCell(),
             mode: SendRemainingBalance + SendIgnoreErrors 
@@ -103,11 +103,11 @@ contract Task4 with Deployable {
   }
 
   get fun time(): Int {
-    return 0;//self.unlockTime - now(); // 
+    return self.unlockTime - now(); // 
   }
 
   get fun nft(): Address? {
-    return null;//self.nft;
+    return self.nft;
   }
 
   get fun owner(): Address? {
