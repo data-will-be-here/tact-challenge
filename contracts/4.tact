@@ -49,7 +49,7 @@ message NftWithdrawal {
 contract Task4 with Deployable {
   seed: Int as uint128;
   owner: Address? = null;
-  time: Int as uint32 = 0;
+  unlockTime: Int as uint32 = 0;
   nft: Address? = null;
   
   init(seed: Int) {
@@ -65,7 +65,7 @@ contract Task4 with Deployable {
             body: Transfer{
               queryId: 0,           
               newOwner: self.owner!!, 
-              responseDestination: myAddress(), 
+              responseDestination: self.owner!!, 
               customPayload: null, 
               forwardAmount: ton("0.01"),
               forwardPayload: emptySlice()
@@ -75,7 +75,7 @@ contract Task4 with Deployable {
     } else {
       self.owner = msg.prevOwner;
       self.nft = sender();
-      self.time = now() + msg.forwardPayload.loadUint(32);
+      self.unlockTime = now() + msg.forwardPayload.loadUint(32);
     }
   }
 
@@ -92,7 +92,7 @@ contract Task4 with Deployable {
             body: Transfer{
               queryId: 0,           
               newOwner: self.owner!!, 
-              responseDestination: myAddress(), 
+              responseDestination: self.owner!!, 
               customPayload: null, 
               forwardAmount: ton("0.01"),
               forwardPayload: emptySlice()
@@ -103,7 +103,7 @@ contract Task4 with Deployable {
   }
 
   get fun time(): Int {
-    return self.time - now(); // 
+    return self.unlockTime - now(); // 
   }
 
   get fun nft(): Address? {
