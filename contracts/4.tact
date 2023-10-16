@@ -53,7 +53,7 @@ contract Task4 with Deployable {
   nft: Address? = null;
   
   init(seed: Int) {
-    self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
+    self.seed = seed; 
   }
 
   receive(msg: OwnershipAssigned) {
