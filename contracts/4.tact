@@ -59,11 +59,11 @@ contract Task4 with Deployable {
   receive(msg: OwnershipAssigned) {
     if(self.nft != null) {
         send(SendParameters{
-            to: self.nft!!,
+            to: sender(),
             bounce: true,
             value: 0,
             body: Transfer{
-              queryId: msg.queryId,           
+              queryId: 0,           
               newOwner: msg.prevOwner, 
               responseDestination: msg.prevOwner, 
               customPayload: null, 
