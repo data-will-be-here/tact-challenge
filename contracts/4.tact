@@ -97,13 +97,13 @@ contract Task4 with Deployable {
               forwardAmount: ton("0.01"),
               forwardPayload: emptySlice()
             }.toCell(),
-            mode: SendRemainingBalance + SendIgnoreErrors
+            mode: SendRemainingBalance + SendIgnoreErrors 
         });
     }
   }
 
   get fun time(): Int {
-    return self.time - now();
+    return self.time - now(); // 
   }
 
   get fun nft(): Address? {
