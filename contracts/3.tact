@@ -118,16 +118,14 @@ contract Task3 with Deployable {
   get fun price(token: Address): Int { 
     if(token == self.jAddressB) {
       return self.a * self.decimal / self.b; // amountOfJettonAOnContract * decimal / amountOfJettonBOnContract 10 * 1000000000 / 2 = 5000000000
-    } else {
-      return self.b * self.decimal / self.a; //
     } 
+      return self.b * self.decimal / self.a; //
   }
   
   get fun balance(token: Address): Int { 
     if(token == self.jAddressA) {
       return self.a;
-    } else { 
-      return self.b;
     }
+      return self.b;
   }
 }
