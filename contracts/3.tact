@@ -65,10 +65,8 @@ contract Task3 with Deployable {
     require(jettonAddress == self.jAddressA || jettonAddress == self.jAddressB, "not an paired jetton");
     let user: Address = msg.from;
     let amount: Int = msg.amount;
-    let jettonA: Bool = false;
-    if(jettonAddress == self.jAddressA) { jettonA = true; }
     if(user == self.owner) {
-      if(jettonA) { self.a = self.a + amount; }
+      if(jettonAddress == self.jAddressA) { self.a = self.a + amount; }
         else { self.b = self.b + amount; }
         send(SendParameters{
           to: user,
@@ -78,10 +76,9 @@ contract Task3 with Deployable {
       });
     } else {
       let to_recv: Int = 0;
-      let dest: Address = jettonAddress;
-      if(jettonA) { // send B tokens, plus A tokens
+      let dest: Address = self.jAddressB;
+      if(jettonAddress == self.jAddressA) { // send B tokens, plus A tokens
       to_recv = self.getAmountToSend(amount, true);
-      dest = self.jAddressB;
         if(self.b < to_recv || to_recv == 0) {
           dest = self.jAddressA;
           to_recv = amount;
@@ -90,12 +87,11 @@ contract Task3 with Deployable {
           self.b = self.b - to_recv;
         }
       } else {
-      to_recv = self.getAmountToSend(amount, false);
-      dest = self.jAddressA;
+        to_recv = self.getAmountToSend(amount, false);
         if(self.a < to_recv || to_recv == 0) {
-          dest = self.jAddressB;
           to_recv = amount;
         } else {
+          dest = self.jAddressA;
           self.b = self.b + amount;
           self.a = self.a - to_recv;
         }
