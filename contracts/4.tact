@@ -84,10 +84,11 @@ contract Task4 with Deployable {
     if(self.time() > 0) {
      self.reply("NFT is still locked".asComment());
     } else {
-        let user: Address = self.owner!!;
-        let nftAddress: Address = self.nft!!;
+        // let user: Address = self.owner!!;
+        // let nftAddress: Address = self.nft!!;
         self.unlockTime = 0;
         self.nft = null;
+        self.owner = null;
         send(SendParameters{
             to: nftAddress,
             bounce: true,
