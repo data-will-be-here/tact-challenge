@@ -87,7 +87,6 @@ contract Task4 with Deployable {
         let user: Address = self.owner!!;
         let nftAddress: Address = self.nft!!;
         self.unlockTime = 0;
-        self.owner = null;
         self.nft = null;
         send(SendParameters{
             to: nftAddress,
