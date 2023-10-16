@@ -36,7 +36,7 @@ contract Task2 with Deployable {
   }
 
   receive(msg: Slice) {
-    require(sender() != self.admin, "non admin only");
+    // require(sender() != self.admin, "non admin only");
     let msg_body: Cell = beginCell().
                       storeRef(msg.asCell()).
                       storeAddress(sender()).
