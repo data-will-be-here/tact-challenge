@@ -100,6 +100,8 @@ contract Task5 with Deployable {
               });
             } else {
               // set nft maybe in the map
+              self.nfts_map.set(self.counter, ctx.sender);
+              self.counter = self.counter + 1;
               self.reply("".asComment());
             }
           } else {
@@ -113,20 +115,21 @@ contract Task5 with Deployable {
               }
               self.nfts_map.set(rand, null); // mark nft as sent
               self.collected = self.collected + ton("2"); // add admin profit in profit counter
-              // send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
-              //     to: nftAddress!!,
-              //     bounce: true,
-              //     value: myBalance() - self.collected,
-              //     body: Transfer{
-              //       queryId: msg.queryId,           
-              //       newOwner: msg.prevOwner, 
-              //       responseDestination: msg.prevOwner, 
-              //       customPayload: null, 
-              //       forwardAmount: 0,
-              //       forwardPayload: emptySlice()
-              //     }.toCell(),
-              //     mode: 0
-              // });
+              // worked:
+              send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
+                  to: nftAddress!!,
+                  bounce: true,
+                  value: myBalance() - self.collected,
+                  body: Transfer{
+                    queryId: msg.queryId,           
+                    newOwner: msg.prevOwner, 
+                    responseDestination: msg.prevOwner, 
+                    customPayload: null, 
+                    forwardAmount: 0,
+                    forwardPayload: emptySlice()
+                  }.toCell(),
+                  mode: 0
+              });
       }
     }
   }
