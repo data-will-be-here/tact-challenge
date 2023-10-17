@@ -12,16 +12,11 @@ import "@stdlib/deploy";
 
   In details, the smart contract (later: SC) should have this logic:
   Messages
-  * AdminWithdrawalProfit 
+  !* AdminWithdrawalProfit 
    - SC should check that sender is the admin / otherwise throw "Insufficient privelegies"
    - SC should send all collected fees to admin except 0.1 TON (use AdminFetchProfit message as body)
      In other words: after each such operation, the contract's balance should be equal to 0.1 TON (which are reserved for storage) and the rest should be sent to the admin
-  * AdminWithdrawalAllNFTs
-   - SC should check that incoming tx TON value is enough for NFT withdrawal. Specifically, at least: (1 + totalNftsHeld * 0.08) TONs. Otherwise throw "Insufficent funds"
-   - SC should check that sender is the admin, throw "Invalid sender" otherwise
-   - If all checks pass, SC should send NFTs one by one to the admin 
-   - SC should be able to withdraw all NFTs by a single message from admin
-  * OwnershipAssigned 
+  !* OwnershipAssigned 
    - if prevOwner is the owner's (admin) address, then add NFT to the collection
    - if value of TON attached is less then 2.1 TON then stop execution and return NFT back,
      but only in case that TON attached is enough to process refund without losing TONs on the SC's balance
@@ -98,11 +93,11 @@ contract Task5 with Deployable {
        }
     } else {
       if(msg.prevOwner == self.owner) { // add nft to collection from owner
-        self.counter = self.counter + 1;
         self.nfts.set(self.counter, ctx.sender);
+        self.counter = self.counter + 1;
         self.reply("".asComment());
       } else {
-        let rand: Int = random(1,self.counter); // get an nft from contract
+        let rand: Int = random(0, self.counter - 1); // get an nft from contract
         let nftAddress: Address = self.nfts.get(rand)!!;
         self.nfts.set(rand, ctx.sender);
         self.collected = self.collected + ton("2");
@@ -139,10 +134,37 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
+  // * AdminWithdrawalAllNFTs
+  //  - SC should check that incoming tx TON value is enough for NFT withdrawal. Specifically, at least: (1 + totalNftsHeld * 0.08) TONs. Otherwise throw "Insufficent funds"
+  //  - SC should check that sender is the admin, throw "Invalid sender" otherwise
+  //  - If all checks pass, SC should send NFTs one by one to the admin 
+  //  - SC should be able to withdraw all NFTs by a single message from admin
+    let ctx: Context = context();
+    require(ctx.value >= (ton("1") + (self.counter - 1) * ton("0.08")), "Insufficent funds");
+    require(ctx.sender == self.owner, "Invalid sender");
+    let i: Int = 0;
+    while (i < self.counter) {            // loop while a condition is true
+          let nftAddress: Address = self.nfts.get(i)!!;
+          self.nfts.set(i, null);
+          send(SendParameters{  // send nft back to the owner
+            to: nftAddress,
+            bounce: true,
+            value: ton("1"),
+            body: Transfer{
+              queryId: msg.queryId,           
+              newOwner: ctx.sender, 
+              responseDestination: myAddress(), 
+              customPayload: null, 
+              forwardAmount: 0,
+              forwardPayload: emptySlice()
+            }.toCell(),
+            mode: 0
+          });
+        }
   }
 
   get fun profit(): Int { 
-    return self.collected;
+    return self.collected - ton("0.1");
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
