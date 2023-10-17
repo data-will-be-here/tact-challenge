@@ -112,7 +112,7 @@ contract Task3 with Deployable {
     }
   } 
 
-  fun get_recv(a: Int, b: Int, amount: Int) {
+  fun get_recv(a: Int, b: Int, amount: Int): Int {
     return (self.a * self.decimal / self.b) * amount / self.decimal;
   }
 
