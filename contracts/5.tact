@@ -57,14 +57,14 @@ contract Task5 with Deployable {
   seed: Int as uint128;
   owner: Address;
   collected: Int as coins = 0;
-  nfts: map<Int as uint16, Address>;
   counter: Int = 0;
+  nfts_map: map<Int as uint16, Address>;
   nfts_amount: Int = 0;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
-    self.nfts = emptyMap();
+    self.nfts_map = emptyMap();
   }
 
   // !* OwnershipAssigned 
@@ -95,20 +95,20 @@ contract Task5 with Deployable {
        }
     } else {
       if(msg.prevOwner == self.owner) { // add nft to collection from owner
-        self.nfts.set(self.counter, ctx.sender);
+        self.nfts_map.set(self.counter, ctx.sender);
         self.counter = self.counter + 1;
         self.nfts_amount = self.nfts_amount + 1;
         self.reply("".asComment());
       } else {
-        self.nfts.set(self.counter, ctx.sender);
+        self.nfts_map.set(self.counter, ctx.sender);
         let rand: Int = random(0, self.counter); // get an nft from contract
         self.counter = self.counter + 1;
-        let nftAddress: Address? = self.nfts.get(rand);
+        let nftAddress: Address? = self.nfts_map.get(rand);
         while(nftAddress == null) {
           rand = random(0, self.counter);
-          nftAddress = self.nfts.get(rand);
+          nftAddress = self.nfts_map.get(rand);
         }
-        self.nfts.set(rand, null);
+        self.nfts_map.set(rand, null);
         self.collected = self.collected + ton("2");
         send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
             to: nftAddress!!,
@@ -153,8 +153,8 @@ contract Task5 with Deployable {
     require(ctx.value >= (ton("1") + self.counter * ton("0.08")), "Insufficent funds");
     let i: Int = 0;
     while (i < self.counter) {            // loop while a condition is true
-            let nftAddress: Address? = self.nfts.get(i);
-              self.nfts.set(i, null);
+            let nftAddress: Address? = self.nfts_map.get(i);
+              self.nfts_map.set(i, null);
               i = i + 1;
             if(nftAddress != null) {
               send(SendParameters{  // send nft back to the owner
@@ -181,6 +181,6 @@ contract Task5 with Deployable {
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
-    return self.nfts;
+    return self.nfts_map;
   }
 }
