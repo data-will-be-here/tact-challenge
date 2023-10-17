@@ -113,7 +113,6 @@ contract Task5 with Deployable {
               }
               self.nfts_map.set(rand, null); // mark nft as sent
               self.collected = self.collected + ton("2"); // add admin profit in profit counter
-              // worked:
               send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
                   to: nftAddress!!,
                   bounce: true,
@@ -152,32 +151,31 @@ contract Task5 with Deployable {
   //  - SC should check that sender is the admin, throw "Invalid sender" otherwise
   //  - If all checks pass, SC should send NFTs one by one to the admin 
   //  - SC should be able to withdraw all NFTs by a single message from admin
-  
-    // let ctx: Context = context();
-    // require(ctx.sender == self.owner, "Invalid sender");
-    // require(ctx.value >= (ton("1") + self.counter * ton("0.08")), "Insufficent funds");
-    // let i: Int = 0;
-    // while (i < self.counter) {            // loop while a condition is true
-    //         let nftAddress: Address? = self.nfts_map.get(i);
-    //           self.nfts_map.set(i, null);
-    //           i = i + 1;
-    //         if(nftAddress != null) {
-    //           send(SendParameters{  // send nft back to the owner
-    //             to: nftAddress!!,
-    //             bounce: true,
-    //             value: ton("0.1"),
-    //             body: Transfer{
-    //               queryId: msg.queryId,           
-    //               newOwner: ctx.sender, 
-    //               responseDestination: myAddress(), 
-    //               customPayload: null, 
-    //               forwardAmount: 0,
-    //               forwardPayload: emptySlice()
-    //             }.toCell(),
-    //             mode: 0
-    //           });
-    //         }
-    //     }
+    let ctx: Context = context();
+    require(ctx.sender == self.owner, "Invalid sender");
+    require(ctx.value >= (ton("1") + self.counter * ton("0.08")), "Insufficent funds");
+    let i: Int = 0;
+    while (i < self.counter) {            // loop while a condition is true
+            let nftAddress: Address? = self.nfts_map.get(i);
+              self.nfts_map.set(i, null);
+              i = i + 1;
+            if(nftAddress != null) {
+              send(SendParameters{  // send nft back to the owner
+                to: nftAddress!!,
+                bounce: true,
+                value: ton("0.1"),
+                body: Transfer{
+                  queryId: msg.queryId,           
+                  newOwner: ctx.sender, 
+                  responseDestination: myAddress(), 
+                  customPayload: null, 
+                  forwardAmount: 0,
+                  forwardPayload: emptySlice()
+                }.toCell(),
+                mode: 0
+              });
+            }
+        }
   }
 
   get fun profit(): Int { 
