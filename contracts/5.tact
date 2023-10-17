@@ -83,7 +83,7 @@ contract Task5 with Deployable {
         self.reply("".asComment());
       } else { 
           if(ctx.value < ton("2.1")) {
-            if(ctx.value >= ctx.readForwardFee()) {
+            if(ctx.value >= ton("0.1")) {
               send(SendParameters{  // send nft back to the user
                   to: ctx.sender,
                   bounce: true,
@@ -130,6 +130,7 @@ contract Task5 with Deployable {
 
   receive(msg: AdminWithdrawalProfit) {
     require(sender() == self.owner, "Insufficient privelegies");
+        self.collected = 0;
         send(SendParameters{
             to: self.owner,
             bounce: true,
@@ -139,7 +140,6 @@ contract Task5 with Deployable {
             }.toCell(),
             mode: 0
         });
-        self.collected = 0;
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
