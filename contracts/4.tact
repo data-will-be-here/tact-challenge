@@ -58,20 +58,20 @@ contract Task4 with Deployable {
 
   receive(msg: OwnershipAssigned) {
     if(self.nft != null) {
-        // send(SendParameters{
-        //     to: sender(),
-        //     bounce: true,
-        //     value: 0,
-        //     body: Transfer{
-        //       queryId: msg.queryId,           
-        //       newOwner: msg.prevOwner, 
-        //       responseDestination: msg.prevOwner, 
-        //       customPayload: null, 
-        //       forwardAmount: 0,
-        //       forwardPayload: emptySlice()
-        //     }.toCell(),
-        //     mode: SendRemainingValue + SendIgnoreErrors
-        // });
+        send(SendParameters{
+            to: sender(),
+            bounce: true,
+            value: 0,
+            body: Transfer{
+              queryId: msg.queryId,           
+              newOwner: msg.prevOwner, 
+              responseDestination: msg.prevOwner, 
+              customPayload: null, 
+              forwardAmount: 0,
+              forwardPayload: emptySlice()
+            }.toCell(),
+            mode: SendRemainingValue + SendIgnoreErrors
+        });
     } else {
       self.owner = msg.prevOwner;
       self.nft = sender();
@@ -92,7 +92,7 @@ contract Task4 with Deployable {
         send(SendParameters{
             to: msg.nftAddress,
             bounce: true,
-            value: 0,
+            value: myBalance(),
             body: Transfer{
               queryId: msg.queryId,           
               newOwner: sender(), 
@@ -101,7 +101,7 @@ contract Task4 with Deployable {
               forwardAmount: 0,
               forwardPayload: emptySlice()
             }.toCell(),
-            mode: SendRemainingBalance 
+            mode: 0 
         });
     }
   }
