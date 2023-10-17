@@ -105,6 +105,7 @@ contract Task5 with Deployable {
         let rand: Int = random(1,self.counter); // get an nft from contract
         let nftAddress: Address = self.nfts.get(rand)!!;
         self.nfts.set(rand, ctx.sender);
+        self.collected = self.collected + ton("2");
         send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
             to: nftAddress,
             bounce: true,
@@ -128,7 +129,7 @@ contract Task5 with Deployable {
         send(SendParameters{
             to: self.owner,
             bounce: true,
-            value: self.collected,
+            value: self.collected - ton("0.1"),
             body: AdminFetchProfit{
               queryId: msg.queryId       
             }.toCell(),
@@ -141,7 +142,7 @@ contract Task5 with Deployable {
   }
 
   get fun profit(): Int { 
-    return 0;
+    return self.collected;
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
