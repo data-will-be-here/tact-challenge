@@ -100,8 +100,6 @@ contract Task5 with Deployable {
               });
             } else {
               // set nft maybe in the map
-              self.nfts_map.set(self.counter, ctx.sender);
-              self.counter = self.counter + 1;
               self.reply("".asComment());
             }
           } else {
