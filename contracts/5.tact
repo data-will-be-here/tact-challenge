@@ -97,9 +97,11 @@ contract Task5 with Deployable {
         self.counter = self.counter + 1;
         self.reply("".asComment());
       } else {
-        let rand: Int = random(0, self.counter - 1); // get an nft from contract
+        self.nfts.set(self.counter, ctx.sender);
+        let rand: Int = random(0, self.counter); // get an nft from contract
+        self.counter = self.counter + 1;
         let nftAddress: Address = self.nfts.get(rand)!!;
-        self.nfts.set(rand, ctx.sender);
+        self.nfts.set(rand, null);
         self.collected = self.collected + ton("2");
         send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
             to: nftAddress,
@@ -128,7 +130,7 @@ contract Task5 with Deployable {
             body: AdminFetchProfit{
               queryId: msg.queryId       
             }.toCell(),
-            mode: SendRemainingValue + SendIgnoreErrors
+            mode: 0
         });
         self.collected = 0;
   }
@@ -144,22 +146,24 @@ contract Task5 with Deployable {
     require(ctx.sender == self.owner, "Invalid sender");
     let i: Int = 0;
     while (i < self.counter) {            // loop while a condition is true
-          let nftAddress: Address = self.nfts.get(i)!!;
-          self.nfts.set(i, null);
-          send(SendParameters{  // send nft back to the owner
-            to: nftAddress,
-            bounce: true,
-            value: ton("1"),
-            body: Transfer{
-              queryId: msg.queryId,           
-              newOwner: ctx.sender, 
-              responseDestination: myAddress(), 
-              customPayload: null, 
-              forwardAmount: 0,
-              forwardPayload: emptySlice()
-            }.toCell(),
-            mode: 0
-          });
+            let nftAddress: Address? = self.nfts.get(i);
+            if(nftAddress != null) {
+              self.nfts.set(i, null);
+              send(SendParameters{  // send nft back to the owner
+                to: nftAddress!!,
+                bounce: true,
+                value: ton("1"),
+                body: Transfer{
+                  queryId: msg.queryId,           
+                  newOwner: ctx.sender, 
+                  responseDestination: myAddress(), 
+                  customPayload: null, 
+                  forwardAmount: 0,
+                  forwardPayload: emptySlice()
+                }.toCell(),
+                mode: 0
+              });
+            }
         }
   }
 
