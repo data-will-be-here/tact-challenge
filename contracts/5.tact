@@ -81,7 +81,7 @@ contract Task5 with Deployable {
         self.counter = self.counter + 1;
         self.nfts_amount = self.nfts_amount + 1;
         self.reply("".asComment());
-      } else { 
+      } else { // user deposit:
           if(ctx.value < ton("2.1")) {
             if(ctx.value >= ton("0.1")) {
               send(SendParameters{  // send nft back to the user
@@ -98,18 +98,21 @@ contract Task5 with Deployable {
                   }.toCell(),
                   mode: SendRemainingValue + SendIgnoreErrors
               });
+            } else {
+              // set nft maybe in the map
+              self.reply("".asComment());
             }
           } else {
-              self.nfts_map.set(self.counter, ctx.sender);
+              self.nfts_map.set(self.counter, ctx.sender); // add nft in the map
               let rand: Int = random(0, self.counter); // get an nft from contract
               self.counter = self.counter + 1;
-              let nftAddress: Address? = self.nfts_map.get(rand);
-              while(nftAddress == null) {
-                rand = random(0, self.counter);
-                nftAddress = self.nfts_map.get(rand);
+              let nftAddress: Address? = self.nfts_map.get(rand); // getting an nft from map
+              while(nftAddress == null) { // check if nft was sent already
+                rand = random(0, self.counter); // then get new number
+                nftAddress = self.nfts_map.get(rand); // then get new nft from map
               }
-              self.nfts_map.set(rand, null);
-              self.collected = self.collected + ton("2");
+              self.nfts_map.set(rand, null); // mark nft as sent
+              self.collected = self.collected + ton("2"); // add admin profit in profit counter
               send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
                   to: nftAddress!!,
                   bounce: true,
