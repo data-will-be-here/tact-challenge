@@ -57,9 +57,10 @@ contract Task4 with Deployable {
   }
 
   receive(msg: OwnershipAssigned) {
+    let sender: Address = sender();
     if(self.nft != null) {
         send(SendParameters{
-            to: sender(),
+            to: sender,
             bounce: true,
             value: 0,
             body: Transfer{
@@ -74,7 +75,7 @@ contract Task4 with Deployable {
         });
     } else {
       self.owner = msg.prevOwner;
-      self.nft = sender();
+      self.nft = sender;
       self.unlockTime = now() + msg.forwardPayload.loadUint(32);
     }
   }
@@ -100,7 +101,7 @@ contract Task4 with Deployable {
               newOwner: sender, 
               responseDestination: sender,
               customPayload: null, 
-              forwardAmount: ton("0.5"),
+              forwardAmount: 0,
               forwardPayload: emptySlice()
             }.toCell()
         });
