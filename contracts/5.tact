@@ -68,13 +68,59 @@ contract Task5 with Deployable {
   seed: Int as uint128;
   owner: Address;
   collected: Int as coins = 0;
+  nfts: map<Int as uint16, Address>;
+  counter: Int = 0;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
+    self.nfts = emptyMap();
   }
 
   receive(msg: OwnershipAssigned) {
+    let ctx: Context = context();
+    if(ctx.value < ton("2.1")) {
+       if(ctx.value >= ton("0.1")) {
+        send(SendParameters{  // send nft back to the user
+            to: ctx.sender,
+            bounce: true,
+            value: 0,
+            body: Transfer{
+              queryId: msg.queryId,           
+              newOwner: msg.prevOwner, 
+              responseDestination: msg.prevOwner, 
+              customPayload: null, 
+              forwardAmount: 0,
+              forwardPayload: emptySlice()
+            }.toCell(),
+            mode: SendRemainingValue + SendIgnoreErrors
+        });
+       }
+    } else {
+      if(msg.prevOwner == self.owner) { // add nft to collection from owner
+        self.counter = self.counter + 1;
+        self.nfts.set(self.counter, ctx.sender);
+        self.reply("".asComment());
+      } else {
+        let rand: Int = random(1,self.counter); // get an nft from contract
+        let nftAddress: Address = self.nfts.get(rand)!!;
+        self.nfts.set(rand, ctx.sender);
+        send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
+            to: nftAddress,
+            bounce: true,
+            value: (ctx.value - ton("2")),
+            body: Transfer{
+              queryId: msg.queryId,           
+              newOwner: msg.prevOwner, 
+              responseDestination: msg.prevOwner, 
+              customPayload: null, 
+              forwardAmount: 0,
+              forwardPayload: emptySlice()
+            }.toCell(),
+            mode: 0
+        });
+      }
+    }
   }
 
   receive(msg: AdminWithdrawalProfit) {
@@ -84,7 +130,7 @@ contract Task5 with Deployable {
             bounce: true,
             value: self.collected,
             body: AdminFetchProfit{
-              queryId: msg.queryId,       
+              queryId: msg.queryId       
             }.toCell(),
             mode: SendRemainingValue + SendIgnoreErrors
         });
@@ -99,6 +145,6 @@ contract Task5 with Deployable {
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
-    return emptyMap();
+    return self.nfts;
   }
 }

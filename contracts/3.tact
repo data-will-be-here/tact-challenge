@@ -77,21 +77,21 @@ contract Task3 with Deployable {
       let dest: Address = self.jAddressB;
       if(jettonAddress == self.jAddressA) { // send B tokens, plus A tokens
         to_recv = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
-        if(to_recv != 0 && self.b > to_recv) {
-          self.a = self.a + msg.amount;
-          self.b = self.b - to_recv;
-        } else {
+        if(self.b < to_recv || to_recv == 0) {
           dest = self.jAddressA;
           to_recv = msg.amount;
+        } else {
+          self.a = self.a + msg.amount;
+          self.b = self.b - to_recv;
         }
       } else {
         to_recv = (self.a * self.decimal / self.b) * msg.amount / self.decimal;
-        if(to_recv != 0 && self.a > to_recv) {
+        if(self.a < to_recv || to_recv == 0) {
+          to_recv = msg.amount;
+        } else {
           dest = self.jAddressA;
           self.b = self.b + msg.amount;
           self.a = self.a - to_recv;
-        } else {
-          to_recv = msg.amount;
         }
       }
         send(SendParameters{
