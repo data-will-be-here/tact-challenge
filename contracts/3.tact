@@ -63,13 +63,11 @@ contract Task3 with Deployable {
   receive(msg: TokenNotification) {
     let jettonAddress: Address = sender();
     require(jettonAddress == self.jAddressA || jettonAddress == self.jAddressB, "not an paired jetton");
-    let user: Address = msg.from;
-    let amount: Int = msg.amount;
-    if(user == self.owner) {
-      if(jettonAddress == self.jAddressA) { self.a = self.a + amount; }
-        else { self.b = self.b + amount; }
+    if(msg.from == self.owner) {
+      if(jettonAddress == self.jAddressA) { self.a = self.a + msg.amount; }
+        else { self.b = self.b + msg.amount; }
         send(SendParameters{
-          to: user,
+          to: msg.from,
           value: 0, 
           mode: SendRemainingValue + SendIgnoreErrors,
           bounce: true
@@ -78,21 +76,21 @@ contract Task3 with Deployable {
       let to_recv: Int = 0;
       let dest: Address = self.jAddressB;
       if(jettonAddress == self.jAddressA) { // send B tokens, plus A tokens
-        to_recv = (self.b * self.decimal / self.a) * amount / self.decimal;
+        to_recv = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
         if(self.b < to_recv || to_recv == 0) {
           dest = self.jAddressA;
-          to_recv = amount;
+          to_recv = msg.amount;
         } else {
-          self.a = self.a + amount;
+          self.a = self.a + msg.amount;
           self.b = self.b - to_recv;
         }
       } else {
-        to_recv = (self.a * self.decimal / self.b) * amount / self.decimal;
+        to_recv = (self.a * self.decimal / self.b) * msg.amount / self.decimal;
         if(self.a < to_recv || to_recv == 0) {
-          to_recv = amount;
+          to_recv = msg.amount;
         } else {
           dest = self.jAddressA;
-          self.b = self.b + amount;
+          self.b = self.b + msg.amount;
           self.a = self.a - to_recv;
         }
       }
@@ -104,7 +102,7 @@ contract Task3 with Deployable {
             body: TokenTransfer {
                 queryId: 0,
                 amount: to_recv,
-                destination: user,
+                destination: msg.from,
                 responseDestination: myAddress(),
                 customPayload: null,
                 forwardTonAmount: ton("0.01"),

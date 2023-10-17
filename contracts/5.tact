@@ -67,6 +67,7 @@ message(0x5fcc3d14) Transfer {
 contract Task5 with Deployable {
   seed: Int as uint128;
   owner: Address;
+  collected: Int as coins = 0;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
@@ -77,6 +78,17 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalProfit) {
+    require(sender() == self.owner, "Insufficient privelegies");
+        send(SendParameters{
+            to: self.owner,
+            bounce: true,
+            value: self.collected,
+            body: AdminFetchProfit{
+              queryId: msg.queryId,       
+            }.toCell(),
+            mode: SendRemainingValue + SendIgnoreErrors
+        });
+        self.collected = 0;
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
