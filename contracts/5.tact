@@ -16,13 +16,7 @@ import "@stdlib/deploy";
    - SC should check that sender is the admin / otherwise throw "Insufficient privelegies"
    - SC should send all collected fees to admin except 0.1 TON (use AdminFetchProfit message as body)
      In other words: after each such operation, the contract's balance should be equal to 0.1 TON (which are reserved for storage) and the rest should be sent to the admin
-  !* OwnershipAssigned 
-   - if prevOwner is the owner's (admin) address, then add NFT to the collection
-   - if value of TON attached is less then 2.1 TON then stop execution and return NFT back,
-     but only in case that TON attached is enough to process refund without losing TONs on the SC's balance
-   - randomly select NFT to send from all the NFTs that smart contract has
-   - send the selected NFT to the sender with all remaining balance (except for admin profit = fees collected from this and other swaps)
-     In other words: the contract's balance should increase by exactly 2 TON, some incoming TONs will be consumed for gas and the remainings of the incoming TONs should be refunded to the sender
+
   
   Getters
   * profit
@@ -65,6 +59,7 @@ contract Task5 with Deployable {
   collected: Int as coins = 0;
   nfts: map<Int as uint16, Address>;
   counter: Int = 0;
+  nfts_amount: Int = 0;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
@@ -72,10 +67,17 @@ contract Task5 with Deployable {
     self.nfts = emptyMap();
   }
 
+  // !* OwnershipAssigned 
+  //  - if prevOwner is the owner's (admin) address, then add NFT to the collection
+  //  - if value of TON attached is less then 2.1 TON then stop execution and return NFT back,
+  //    but only in case that TON attached is enough to process refund without losing TONs on the SC's balance
+  //  - randomly select NFT to send from all the NFTs that smart contract has
+  //  - send the selected NFT to the sender with all remaining balance (except for admin profit = fees collected from this and other swaps)
+  //    In other words: the contract's balance should increase by exactly 2 TON, some incoming TONs will be consumed for gas and the remainings of the incoming TONs should be refunded to the sender
   receive(msg: OwnershipAssigned) {
     let ctx: Context = context();
     if(ctx.value < ton("2.1")) {
-       if(ctx.value >= ton("0.1")) {
+       if(ctx.value >= ctx.readForwardFee()) {
         send(SendParameters{  // send nft back to the user
             to: ctx.sender,
             bounce: true,
@@ -95,6 +97,7 @@ contract Task5 with Deployable {
       if(msg.prevOwner == self.owner) { // add nft to collection from owner
         self.nfts.set(self.counter, ctx.sender);
         self.counter = self.counter + 1;
+        self.nfts_amount = self.nfts_amount + 1;
         self.reply("".asComment());
       } else {
         self.nfts.set(self.counter, ctx.sender);
@@ -130,7 +133,7 @@ contract Task5 with Deployable {
         send(SendParameters{
             to: self.owner,
             bounce: true,
-            value: self.collected - ton("0.1"),
+            value: myBalance() - ton("0.1"),
             body: AdminFetchProfit{
               queryId: msg.queryId       
             }.toCell(),
@@ -147,16 +150,17 @@ contract Task5 with Deployable {
   //  - SC should be able to withdraw all NFTs by a single message from admin
     let ctx: Context = context();
     require(ctx.sender == self.owner, "Invalid sender");
-    require(ctx.value >= (ton("1") + (self.counter - 1) * ton("0.08")), "Insufficent funds");
+    require(ctx.value >= (ton("1") + self.counter * ton("0.08")), "Insufficent funds");
     let i: Int = 0;
     while (i < self.counter) {            // loop while a condition is true
             let nftAddress: Address? = self.nfts.get(i);
-            if(nftAddress != null) {
               self.nfts.set(i, null);
+              i = i + 1;
+            if(nftAddress != null) {
               send(SendParameters{  // send nft back to the owner
                 to: nftAddress!!,
                 bounce: true,
-                value: ton("1"),
+                value: ton("0.1"),
                 body: Transfer{
                   queryId: msg.queryId,           
                   newOwner: ctx.sender, 
@@ -172,7 +176,8 @@ contract Task5 with Deployable {
   }
 
   get fun profit(): Int { 
-    return self.collected - ton("0.1");
+    // return self.collected - ton("0.1");
+    return myBalance() - ton("0.1");
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
