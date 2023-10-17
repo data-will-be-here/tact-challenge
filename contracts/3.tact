@@ -63,16 +63,7 @@ contract Task3 with Deployable {
   receive(msg: TokenNotification) {
     let jettonAddress: Address = sender();
     require(jettonAddress == self.jAddressA || jettonAddress == self.jAddressB, "not an paired jetton");
-    if(msg.from == self.owner) {
-      if(jettonAddress == self.jAddressA) { self.a = self.a + msg.amount; }
-        else { self.b = self.b + msg.amount; }
-        send(SendParameters{
-          to: msg.from,
-          value: 0, 
-          mode: SendRemainingValue + SendIgnoreErrors,
-          bounce: true
-      });
-    } else {
+    if(msg.from != self.owner) {
       let to_recv: Int = 0;
       let dest: Address = self.jAddressB;
       if(jettonAddress == self.jAddressA) { // send B tokens, plus A tokens
@@ -109,12 +100,17 @@ contract Task3 with Deployable {
                 forwardPayload: emptySlice()
             }.toCell()
             });
+    } else {
+      if(jettonAddress == self.jAddressA) { self.a = self.a + msg.amount; }
+        else { self.b = self.b + msg.amount; }
+        send(SendParameters{
+          to: msg.from,
+          value: 0, 
+          mode: SendRemainingValue + SendIgnoreErrors,
+          bounce: true
+      });
     }
   } 
-
-  fun sendTokens(dest: Address, amount: Int) {
-
-  }
 
   get fun price(token: Address): Int { 
     if(token == self.jAddressB) {
