@@ -75,55 +75,55 @@ contract Task5 with Deployable {
   //  - send the selected NFT to the sender with all remaining balance (except for admin profit = fees collected from this and other swaps)
   //    In other words: the contract's balance should increase by exactly 2 TON, some incoming TONs will be consumed for gas and the remainings of the incoming TONs should be refunded to the sender
   receive(msg: OwnershipAssigned) {
-    let ctx: Context = context();
-    if(ctx.value < ton("2.1")) {
-       if(ctx.value >= ctx.readForwardFee()) {
-        send(SendParameters{  // send nft back to the user
-            to: ctx.sender,
-            bounce: true,
-            value: 0,
-            body: Transfer{
-              queryId: msg.queryId,           
-              newOwner: msg.prevOwner, 
-              responseDestination: msg.prevOwner, 
-              customPayload: null, 
-              forwardAmount: 0,
-              forwardPayload: emptySlice()
-            }.toCell(),
-            mode: SendRemainingValue + SendIgnoreErrors
-        });
-       }
-    } else {
+      let ctx: Context = context();
       if(msg.prevOwner == self.owner) { // add nft to collection from owner
         self.nfts_map.set(self.counter, ctx.sender);
         self.counter = self.counter + 1;
         self.nfts_amount = self.nfts_amount + 1;
         self.reply("".asComment());
-      } else {
-        self.nfts_map.set(self.counter, ctx.sender);
-        let rand: Int = random(0, self.counter); // get an nft from contract
-        self.counter = self.counter + 1;
-        let nftAddress: Address? = self.nfts_map.get(rand);
-        while(nftAddress == null) {
-          rand = random(0, self.counter);
-          nftAddress = self.nfts_map.get(rand);
-        }
-        self.nfts_map.set(rand, null);
-        self.collected = self.collected + ton("2");
-        send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
-            to: nftAddress!!,
-            bounce: true,
-            value: myBalance() - self.collected,
-            body: Transfer{
-              queryId: msg.queryId,           
-              newOwner: msg.prevOwner, 
-              responseDestination: msg.prevOwner, 
-              customPayload: null, 
-              forwardAmount: 0,
-              forwardPayload: emptySlice()
-            }.toCell(),
-            mode: 0
-        });
+      } else { 
+          if(ctx.value < ton("2.1")) {
+            if(ctx.value >= ctx.readForwardFee()) {
+              send(SendParameters{  // send nft back to the user
+                  to: ctx.sender,
+                  bounce: true,
+                  value: 0,
+                  body: Transfer{
+                    queryId: msg.queryId,           
+                    newOwner: msg.prevOwner, 
+                    responseDestination: msg.prevOwner, 
+                    customPayload: null, 
+                    forwardAmount: 0,
+                    forwardPayload: emptySlice()
+                  }.toCell(),
+                  mode: SendRemainingValue + SendIgnoreErrors
+              });
+            }
+          } else {
+              self.nfts_map.set(self.counter, ctx.sender);
+              let rand: Int = random(0, self.counter); // get an nft from contract
+              self.counter = self.counter + 1;
+              let nftAddress: Address? = self.nfts_map.get(rand);
+              while(nftAddress == null) {
+                rand = random(0, self.counter);
+                nftAddress = self.nfts_map.get(rand);
+              }
+              self.nfts_map.set(rand, null);
+              self.collected = self.collected + ton("2");
+              send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
+                  to: nftAddress!!,
+                  bounce: true,
+                  value: myBalance() - self.collected,
+                  body: Transfer{
+                    queryId: msg.queryId,           
+                    newOwner: msg.prevOwner, 
+                    responseDestination: msg.prevOwner, 
+                    customPayload: null, 
+                    forwardAmount: 0,
+                    forwardPayload: emptySlice()
+                  }.toCell(),
+                  mode: 0
+              });
       }
     }
   }
