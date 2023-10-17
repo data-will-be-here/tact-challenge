@@ -100,11 +100,15 @@ contract Task5 with Deployable {
         self.nfts.set(self.counter, ctx.sender);
         let rand: Int = random(0, self.counter); // get an nft from contract
         self.counter = self.counter + 1;
-        let nftAddress: Address = self.nfts.get(rand)!!;
+        let nftAddress: Address? = self.nfts.get(rand);
+        while(nftAddress == null) {
+          rand = random(0, self.counter);
+          nftAddress = self.nfts.get(rand);
+        }
         self.nfts.set(rand, null);
         self.collected = self.collected + ton("2");
         send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
-            to: nftAddress,
+            to: nftAddress!!,
             bounce: true,
             value: (ctx.value - ton("2")),
             body: Transfer{
@@ -142,8 +146,8 @@ contract Task5 with Deployable {
   //  - If all checks pass, SC should send NFTs one by one to the admin 
   //  - SC should be able to withdraw all NFTs by a single message from admin
     let ctx: Context = context();
-    require(ctx.value >= (ton("1") + (self.counter - 1) * ton("0.08")), "Insufficent funds");
     require(ctx.sender == self.owner, "Invalid sender");
+    require(ctx.value >= (ton("1") + (self.counter - 1) * ton("0.08")), "Insufficent funds");
     let i: Int = 0;
     while (i < self.counter) {            // loop while a condition is true
             let nftAddress: Address? = self.nfts.get(i);
