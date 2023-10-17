@@ -113,7 +113,7 @@ contract Task5 with Deployable {
         send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
             to: nftAddress!!,
             bounce: true,
-            value: (ctx.value - ton("2")),
+            value: myBalance() - self.collected,
             body: Transfer{
               queryId: msg.queryId,           
               newOwner: msg.prevOwner, 
