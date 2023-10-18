@@ -190,9 +190,11 @@ contract Task5 with Deployable {
     self.reply("".asComment());
   }
 
-  get fun profit(): Int { 
+  get fun profit(): Int { // not working
     // return self.collected - ton("0.1");
-    return 0;// self.collected - ton("0.1");
+    let profit: Int = self.collected - ton("0.1");
+    if(profit > 0) return profit;
+    return 0;
   }
 
   get fun balance(): Int { 
