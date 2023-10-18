@@ -34,6 +34,11 @@ message AdminWithdrawalAllNFTs {
   queryId: Int as uint64;
 }
 
+message AdminWithdrawNFT {
+  queryId: Int as uint64;
+  nft_id: Int;
+}
+
 message AdminFetchProfit {
   queryId: Int as uint64;
 }
@@ -156,30 +161,56 @@ contract Task5 with Deployable {
     require(ctx.value >= (ton("1") + self.nfts_amount * ton("0.08")), "Insufficent funds");
     require(ctx.sender == self.owner, "Invalid sender");
     // require(self.nfts_amount > 0, "no nfts");
-    let i: Int = 0;
-    while (i < self.counter) {            // loop while a condition is true
-            let nftAddress: Address? = self.nfts_map.get(i);
-              self.nfts_map.set(i, null);
-              i = i + 1;
-            if(nftAddress != null) {
-              send(SendParameters{  // send nft back to the owner
-                to: nftAddress!!,
-                bounce: true,
-                value: ton("0.06"),
-                body: Transfer{
-                  queryId: msg.queryId,           
-                  newOwner: self.owner, 
-                  responseDestination: self.owner, 
-                  customPayload: null, 
-                  forwardAmount: 0,
-                  forwardPayload: emptySlice()
-                }.toCell(),
-                mode: 0
-              });
-            }
-        }
-            self.nfts_map = emptyMap();
-            self.nfts_amount = 0;
+    send(SendParameters{  // send nft back to the owner
+      to: myAddress(),
+      bounce: true,
+      value: 0,
+      body: AdminWithdrawNFT{
+        queryId: msg.queryId,
+        nft_id: 0
+      }.toCell(),
+      mode: SendRemainingValue + SendIgnoreErrors
+    });
+  }
+
+  receive(msg: AdminWithdrawNFT) {
+    let num: Int = msg.nft_id;
+    let nftAddress: Address? = self.nfts_map.get(num);
+    while(nftAddress == null && num < self.counter) {
+      num = num + 1;
+      nftAddress = self.nfts_map.get(num);
+    }
+    if(nftAddress != null) {
+      send(SendParameters{  // send nft back to the owner
+        to: nftAddress!!,
+        bounce: true,
+        value: ton("0.06"),
+        body: Transfer{
+          queryId: msg.queryId,           
+          newOwner: self.owner, 
+          responseDestination: self.owner, 
+          customPayload: null, 
+          forwardAmount: 0,
+          forwardPayload: emptySlice()
+        }.toCell(),
+        mode: 0
+      });
+    }
+    if(num < self.counter) {
+    send(SendParameters{  // send nft back to the owner
+      to: myAddress(),
+      bounce: true,
+      value: 0,
+      body: AdminWithdrawNFT{
+        queryId: msg.queryId + 1,
+        nft_id: num
+      }.toCell(),
+      mode: SendRemainingValue + SendIgnoreErrors
+    });
+    } else {
+      self.nfts_map = emptyMap();
+      self.nfts_amount = 0;
+    }
   }
 
   // receive(msg: String) {
@@ -192,9 +223,9 @@ contract Task5 with Deployable {
 
   get fun profit(): Int { // not working
     return self.collected - ton("0.1");
-    let profit: Int = self.collected - ton("0.1");
-    if(profit > 0){ return profit;}
-    return 0;
+    // let profit: Int = self.collected - ton("0.1");
+    // if(profit > 0){ return profit;}
+    // return 0;
   }
 
   get fun balance(): Int { 
