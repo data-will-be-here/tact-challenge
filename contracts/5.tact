@@ -12,18 +12,6 @@ import "@stdlib/deploy";
 
   In details, the smart contract (later: SC) should have this logic:
   Messages
-  !* AdminWithdrawalProfit 
-   - SC should check that sender is the admin / otherwise throw "Insufficient privelegies"
-   - SC should send all collected fees to admin except 0.1 TON (use AdminFetchProfit message as body)
-     In other words: after each such operation, the contract's balance should be equal to 0.1 TON (which are reserved for storage) and the rest should be sent to the admin
-
-  
-  Getters
-  * profit
-   - returns how much collected fees is available to withdraw for the admin (all fees minus 0.1 TON)
-  * nfts
-   - returns dict of held NFTs with NFT indexes (sequential numbers from 0, 1, 2 ... and up to 'totalNftsHeld-1') as keys and NFT address as values 
-     the order of NFTs in this dictionary doesn't matter
 */
 
 message AdminWithdrawalProfit {
@@ -34,14 +22,11 @@ message AdminWithdrawalAllNFTs {
   queryId: Int as uint64;
 }
 
-message AdminWithdrawNFT {
-  queryId: Int as uint64;
-  nft_id: Int;
-}
-
 message AdminFetchProfit {
   queryId: Int as uint64;
 }
+
+
 
 message(0x05138d91) OwnershipAssigned {
     queryId: Int as uint64;
@@ -61,18 +46,20 @@ message(0x5fcc3d14) Transfer {
 contract Task5 with Deployable {
   seed: Int as uint128;
   owner: Address;
-  collected: Int as coins = 0;
+  nftsArray: map<Int as uint16, Address>;
   counter: Int = 0;
-  nfts_map: map<Int as uint16, Address>;
-  nfts_amount: Int = 0;
+  nftsCount: Int = 0;
+  collected: Int as coins = 0;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
-    self.nfts_map = emptyMap();
+    self.nftsArray = emptyMap();
   }
 
-  // !* OwnershipAssigned 
+  // A user brings his NFT (sends it to the smart contract), with 2.1 TON (2 for admin's profit, 0.1 for gas) in attachment (as fee for swap).
+  // The smart contract randomly chooses some NFT from the available NFTs (including the newly incoming one) and gives it to the user in exchange for the brought NFT (but occasionally just returns user's NFT in some cases).
+  // * OwnershipAssigned 
   //  - if prevOwner is the owner's (admin) address, then add NFT to the collection
   //  - if value of TON attached is less then 2.1 TON then stop execution and return NFT back,
   //    but only in case that TON attached is enough to process refund without losing TONs on the SC's balance
@@ -80,160 +67,41 @@ contract Task5 with Deployable {
   //  - send the selected NFT to the sender with all remaining balance (except for admin profit = fees collected from this and other swaps)
   //    In other words: the contract's balance should increase by exactly 2 TON, some incoming TONs will be consumed for gas and the remainings of the incoming TONs should be refunded to the sender
   receive(msg: OwnershipAssigned) {
-      let ctx: Context = context();
-      if(msg.prevOwner == self.owner) { // add nft to collection from owner
-        self.nfts_map.set(self.counter, ctx.sender);
-        self.counter = self.counter + 1;
-        self.nfts_amount = self.nfts_amount + 1;
-        // self.reply("".asComment());
-      } else { // user deposit:
-          if(ctx.value < ton("2.1")) {
-            // if(ctx.value >= ton("0.1")) {
-              send(SendParameters{  // send nft back to the user WORK
-                  to: ctx.sender,
-                  bounce: true,
-                  value: 0,
-                  body: Transfer{
-                    queryId: msg.queryId,           
-                    newOwner: msg.prevOwner, 
-                    responseDestination: msg.prevOwner, 
-                    customPayload: null, 
-                    forwardAmount: 0,
-                    forwardPayload: emptySlice()
-                  }.toCell(),
-                  mode: SendRemainingValue + SendIgnoreErrors
-              });
-            // } 
-          } else {
-              self.nfts_map.set(self.counter, ctx.sender); // add nft in the map
-              let rand: Int = random(0, self.counter); // get an nft from contract
-              self.counter = self.counter + 1;
-              let nftAddress: Address? = self.nfts_map.get(rand); // getting an nft from map
-              while(nftAddress == null) { // check if nft was sent already
-                rand = random(0, self.counter); // then get new number
-                nftAddress = self.nfts_map.get(rand); // then get new nft from map
-              }
-              self.nfts_map.set(rand, null); // mark nft as sent
-              self.collected = self.collected + ton("2"); // add admin profit in profit counter
-              nativeReserve(self.collected, 0);
-              send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
-                  to: nftAddress!!,
-                  bounce: true,
-                  value: 0, // 2.4 - (2.4 - 2 + 0.025) = 2.4 - (0.4 - 0.025) = 2.4 - 0.425
-                  body: Transfer{
-                    queryId: msg.queryId,           
-                    newOwner: msg.prevOwner, 
-                    responseDestination: msg.prevOwner, 
-                    customPayload: null, 
-                    forwardAmount: 0,
-                    forwardPayload: emptySlice()
-                  }.toCell(),
-                  mode: SendRemainingBalance + SendIgnoreErrors
-              });
-      }
+    if(msg.prevOwner == self.owner) {
+      self.nftsArray.set(self.counter, sender());
+      self.counter = self.counter + 1;
+      self.nftsCount = self.nftsCount + 1;
     }
   }
 
+
+  // * AdminWithdrawalProfit 
+  //  - SC should check that sender is the admin / otherwise throw "Insufficient privelegies"
+  //  - SC should send all collected fees to admin except 0.1 TON (use AdminFetchProfit message as body)
+  //    In other words: after each such operation, the contract's balance should be equal to 0.1 TON (which are reserved for storage) and the rest should be sent to the admin
   receive(msg: AdminWithdrawalProfit) {
-    require(sender() == self.owner, "Insufficient privelegies");
-    // require(myBalance() - ton("0.1") > 0, "Nothing to claim");
-        self.collected = 0;
-        
-        nativeReserve(ton("0.1"), 0);
-        send(SendParameters{
-            to: self.owner,
-            bounce: true,
-            value: 0,
-            body: AdminFetchProfit{
-              queryId: msg.queryId       
-            }.toCell(),
-            mode: SendRemainingBalance + SendIgnoreErrors
-        });
   }
 
-  receive(msg: AdminWithdrawalAllNFTs) {
   // * AdminWithdrawalAllNFTs
   //  - SC should check that incoming tx TON value is enough for NFT withdrawal. Specifically, at least: (1 + totalNftsHeld * 0.08) TONs. Otherwise throw "Insufficent funds"
   //  - SC should check that sender is the admin, throw "Invalid sender" otherwise
   //  - If all checks pass, SC should send NFTs one by one to the admin 
   //  - SC should be able to withdraw all NFTs by a single message from admin
-    let ctx: Context = context();
-    require(ctx.value >= (ton("1") + self.nfts_amount * ton("0.08")), "Insufficent funds");
-    require(ctx.sender == self.owner, "Invalid sender");
-    // require(self.nfts_amount > 0, "no nfts");
-    send(SendParameters{  // send nft back to the owner
-      to: myAddress(),
-      bounce: true,
-      value: 0,
-      body: AdminWithdrawNFT{
-        queryId: msg.queryId,
-        nft_id: 0
-      }.toCell(),
-      mode: SendRemainingValue + SendIgnoreErrors
-    });
+  receive(msg: AdminWithdrawalAllNFTs) {
   }
 
-  receive(msg: AdminWithdrawNFT) {
-    let num: Int = msg.nft_id;
-    let nftAddress: Address? = self.nfts_map.get(num);
-    while(nftAddress == null && num < self.counter) {
-      num = num + 1;
-      nftAddress = self.nfts_map.get(num);
-    }
-    if(nftAddress != null) {
-      send(SendParameters{  // send nft back to the owner
-        to: nftAddress!!,
-        bounce: true,
-        value: ton("0.06"),
-        body: Transfer{
-          queryId: msg.queryId,           
-          newOwner: self.owner, 
-          responseDestination: self.owner, 
-          customPayload: null, 
-          forwardAmount: 0,
-          forwardPayload: emptySlice()
-        }.toCell(),
-        mode: 0
-      });
-    }
-    num = num + 1;
-    if(num < self.counter) {
-    send(SendParameters{  // send nft back to the owner
-      to: myAddress(),
-      bounce: true,
-      value: 0,
-      body: AdminWithdrawNFT{
-        queryId: msg.queryId + 1,
-        nft_id: num
-      }.toCell(),
-      mode: SendRemainingValue + SendIgnoreErrors
-    });
-    } else {
-      self.nfts_map = emptyMap();
-      self.nfts_amount = 0;
-    }
-  }
 
-  // receive(msg: String) {
-  //   self.reply("".asComment());
-  // }
-
-  // receive(msg: Slice) {
-  //   self.reply("".asComment());
-  // }
-
-  get fun profit(): Int { // not working
+  // Getters
+  // * profit
+  //  - returns how much collected fees is available to withdraw for the admin (all fees minus 0.1 TON)
+  // * nfts
+  //  - returns dict of held NFTs with NFT indexes (sequential numbers from 0, 1, 2 ... and up to 'totalNftsHeld-1') as keys and NFT address as values 
+  //    the order of NFTs in this dictionary doesn't matter
+  get fun profit(): Int { 
     return self.collected - ton("0.1");
-    // let profit: Int = self.collected - ton("0.1");
-    // if(profit > 0){ return profit;}
-    // return 0;
-  }
-
-  get fun balance(): Int { 
-    return myBalance();
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
-    return self.nfts_map; // works fine
+    return self.nftsArray;
   }
 }
