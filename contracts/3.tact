@@ -63,57 +63,66 @@ contract Task3 with Deployable {
   receive(msg: TokenNotification) {
     let jettonAddress: Address = sender();
     require(jettonAddress == self.jAddressA || jettonAddress == self.jAddressB, "not an paired jetton");
-    if(msg.from == self.owner) {
-      if(jettonAddress == self.jAddressA) { self.a = self.a + msg.amount; }
-        else { self.b = self.b + msg.amount; }
+    self.swap(msg.from, msg.amount, jettonAddress);
+  } 
+
+  fun swap(from: Address, amount: Int, jettonAddress: Address): Int {
+      if(from == self.owner) {
+      if(jettonAddress == self.jAddressA) { self.a = self.a + amount; }
+        else { self.b = self.b + amount; }
         send(SendParameters{
-          to: msg.from,
+          to: from,
           value: 0, 
           mode: SendRemainingValue + SendIgnoreErrors,
           bounce: true
       });
+      return 1;
     } else {
       let to_recv: Int = 0;
       let dest: Address = self.jAddressB;
       if(jettonAddress == self.jAddressA) { // send B tokens, plus A tokens
-        to_recv = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
+        to_recv = (self.b * self.decimal / self.a) * amount / self.decimal;
         if(self.b < to_recv || to_recv == 0) {
           dest = self.jAddressA;
-          to_recv = msg.amount;
+          to_recv = amount;
+          return self.sendTokens(dest, to_recv, from);
         } else {
-          self.a = self.a + msg.amount;
+          self.a = self.a + amount;
           self.b = self.b - to_recv;
+          return self.sendTokens(dest, to_recv, from);
         }
       } else {
-        to_recv = (self.a * self.decimal / self.b) * msg.amount / self.decimal;
+        to_recv = (self.a * self.decimal / self.b) * amount / self.decimal;
         if(self.a < to_recv || to_recv == 0) {
-          to_recv = msg.amount;
+          to_recv = amount;
+          return self.sendTokens(dest, to_recv, from);
         } else {
           dest = self.jAddressA;
-          self.b = self.b + msg.amount;
+          self.b = self.b + amount;
           self.a = self.a - to_recv;
+          return self.sendTokens(dest, to_recv, from);
         }
       }
+    }
+  }
+
+  fun sendTokens(to: Address, to_recv: Int, dest: Address): Int {
         send(SendParameters{
-            to: dest,
+            to: to,
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
             bounce: true, 
             body: TokenTransfer {
                 queryId: 0,
                 amount: to_recv,
-                destination: msg.from,
+                destination: dest,
                 responseDestination: myAddress(),
                 customPayload: null,
                 forwardTonAmount: ton("0.01"),
                 forwardPayload: emptySlice()
             }.toCell()
             });
-    }
-  } 
-
-  fun sendTokens(dest: Address, amount: Int) {
-
+            return 1;
   }
 
   get fun price(token: Address): Int { 
