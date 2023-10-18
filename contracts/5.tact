@@ -155,7 +155,7 @@ contract Task5 with Deployable {
   //  - SC should be able to withdraw all NFTs by a single message from admin
     let ctx: Context = context();
     require(ctx.sender == self.owner, "Invalid sender");
-    require(ctx.value >= (ton("1") + self.counter * ton("0.08")), "Insufficent funds");
+    require(ctx.value >= (ton("1") + self.nfts_amount * ton("0.08")), "Insufficent funds");
     let i: Int = 0;
     while (i < self.counter) {            // loop while a condition is true
             let nftAddress: Address? = self.nfts_map.get(i);
