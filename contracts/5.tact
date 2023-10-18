@@ -84,7 +84,7 @@ contract Task5 with Deployable {
       } else { // user deposit:
           if(ctx.value < ton("2.1")) {
             if(ctx.value >= ton("0.1")) {
-              send(SendParameters{  // send nft back to the user
+              send(SendParameters{  // send nft back to the user WORK
                   to: ctx.sender,
                   bounce: true,
                   value: 0,
@@ -133,6 +133,7 @@ contract Task5 with Deployable {
 
   receive(msg: AdminWithdrawalProfit) {
     require(sender() == self.owner, "Insufficient privelegies");
+    require(myBalance() - ton("0.1") > 0, "Nothing to claim");
         self.collected = 0;
         send(SendParameters{
             to: self.owner,
@@ -146,6 +147,7 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
+    require(self.nfts_amount > 0, "no nfts");
   // * AdminWithdrawalAllNFTs
   //  - SC should check that incoming tx TON value is enough for NFT withdrawal. Specifically, at least: (1 + totalNftsHeld * 0.08) TONs. Otherwise throw "Insufficent funds"
   //  - SC should check that sender is the admin, throw "Invalid sender" otherwise
