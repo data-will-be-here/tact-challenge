@@ -116,7 +116,7 @@ contract Task5 with Deployable {
               send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
                   to: nftAddress!!,
                   bounce: true,
-                  value: myBalance() - self.collected,
+                  value: myBalance() - self.collected - ctx.readForwardFee(),
                   body: Transfer{
                     queryId: msg.queryId,           
                     newOwner: msg.prevOwner, 
@@ -191,6 +191,10 @@ contract Task5 with Deployable {
   get fun profit(): Int { 
     // return self.collected - ton("0.1");
     return myBalance() - ton("0.1");
+  }
+
+  get fun balance(): Int { 
+    return myBalance();
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
