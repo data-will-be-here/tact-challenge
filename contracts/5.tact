@@ -85,7 +85,7 @@ contract Task5 with Deployable {
         self.nfts_map.set(self.counter, ctx.sender);
         self.counter = self.counter + 1;
         self.nfts_amount = self.nfts_amount + 1;
-        self.reply("".asComment());
+        // self.reply("".asComment());
       } else { // user deposit:
           if(ctx.value < ton("2.1")) {
             // if(ctx.value >= ton("0.1")) {
@@ -136,7 +136,7 @@ contract Task5 with Deployable {
 
   receive(msg: AdminWithdrawalProfit) {
     require(sender() == self.owner, "Insufficient privelegies");
-    require(myBalance() - ton("0.1") > 0, "Nothing to claim");
+    // require(myBalance() - ton("0.1") > 0, "Nothing to claim");
         self.collected = 0;
         
         nativeReserve(ton("0.1"), 0);
