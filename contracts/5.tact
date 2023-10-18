@@ -67,7 +67,7 @@ contract Task5 with Deployable {
   //  - send the selected NFT to the sender with all remaining balance (except for admin profit = fees collected from this and other swaps)
   //    In other words: the contract's balance should increase by exactly 2 TON, some incoming TONs will be consumed for gas and the remainings of the incoming TONs should be refunded to the sender
   receive(msg: OwnershipAssigned) {
-    let ctx: Content = context();
+    let ctx: Context = context();
     if(msg.prevOwner == self.owner) {
       setNFT(ctx.sender);
     } else {
