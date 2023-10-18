@@ -70,6 +70,7 @@ contract Task5 with Deployable {
     let ctx: Context = context();
     if(msg.prevOwner == self.owner) {
       self.setNFT(ctx.sender);
+      self.nftsCount = self.nftsCount + 1;
     } else {
       if(ctx.value < ton("2.1")) {
         send(SendParameters{  // send nft back to the user WORK
@@ -86,14 +87,44 @@ contract Task5 with Deployable {
                   }.toCell(),
                   mode: SendRemainingValue + SendIgnoreErrors
               });
+      } else {
+        nativeReserve(ton("2"), 0);
+        self.setNFT(ctx.sender);
+        let randomNFT: Int = random(0, self.counter - 1);
+        let nftAddress: Address? = self.nftsArray.get(randomNFT);
+        while(nftAddress == null) {
+          randomNFT = random(0, self.counter - 1);
+          nftAddress = self.nftsArray.get(randomNFT);
+        }
+        send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
+             to: nftAddress!!,
+             bounce: true,
+             value: 0, 
+             body: Transfer{
+               queryId: msg.queryId,           
+               newOwner: msg.prevOwner, 
+               responseDestination: msg.prevOwner, 
+               customPayload: null, 
+               forwardAmount: 0,
+               forwardPayload: emptySlice()
+             }.toCell(),
+             mode: SendRemainingBalance + SendIgnoreErrors
+        });
       }
     }
   }
 
-  fun setNFT(nftAddress: Address) {
-      self.nftsArray.set(self.counter, nftAddress);
-      self.counter = self.counter + 1;
-      self.nftsCount = self.nftsCount + 1;
+  fun setNFT(nftAddress: Address) {        
+        let i: Int = 0;
+        let checkNullNFT: Address? = nftAddress;
+        while (checkNullNFT != null) {            // loop while a condition is true
+            checkNullNFT = self.nftsArray.get(i);
+            i = i + 1;
+        }
+      self.nftsArray.set(i - 1, nftAddress);
+      if(i >= self.counter) {
+        self.counter = i;
+      }
   }
 
   // * AdminWithdrawalProfit 
