@@ -113,7 +113,7 @@ contract Task5 with Deployable {
               }
               self.nfts_map.set(rand, null); // mark nft as sent
               self.collected = self.collected + ton("2"); // add admin profit in profit counter
-              return send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
+              send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
                   to: nftAddress!!,
                   bounce: true,
                   value: myBalance() - self.collected - context().readForwardFee(), // 2.4 - (2.4 - 2 + 0.025) = 2.4 - (0.4 - 0.025) = 2.4 - 0.425
