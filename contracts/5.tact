@@ -138,11 +138,11 @@ contract Task5 with Deployable {
         send(SendParameters{
             to: self.owner,
             bounce: true,
-            value: myBalance() - ton("0.1"),
+            value: myBalance() - ton("0.1") - context().readForwardFee(),
             body: AdminFetchProfit{
               queryId: msg.queryId       
             }.toCell(),
-            mode: 0
+            mode: SendPayGasSeparately + SendIgnoreErrors
         });
   }
 
@@ -192,7 +192,7 @@ contract Task5 with Deployable {
 
   get fun profit(): Int { 
     // return self.collected - ton("0.1");
-    return myBalance() - ton("0.1");
+    return self.collected - ton("0.1");
   }
 
   get fun balance(): Int { 
