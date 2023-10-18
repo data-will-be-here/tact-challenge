@@ -85,23 +85,21 @@ contract Task3 with Deployable {
         if(self.b < to_recv || to_recv == 0) {
           dest = self.jAddressA;
           to_recv = amount;
-          return self.sendTokens(dest, to_recv, from);
         } else {
           self.a = self.a + amount;
           self.b = self.b - to_recv;
-          return self.sendTokens(dest, to_recv, from);
         }
+          return self.sendTokens(dest, to_recv, from);
       } else {
         to_recv = (self.a * self.decimal / self.b) * amount / self.decimal;
         if(self.a < to_recv || to_recv == 0) {
           to_recv = amount;
-          return self.sendTokens(dest, to_recv, from);
         } else {
           dest = self.jAddressA;
           self.b = self.b + amount;
           self.a = self.a - to_recv;
-          return self.sendTokens(dest, to_recv, from);
         }
+          return self.sendTokens(dest, to_recv, from);
       }
     }
   }
