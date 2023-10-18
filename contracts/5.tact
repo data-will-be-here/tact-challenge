@@ -136,14 +136,16 @@ contract Task5 with Deployable {
     require(sender() == self.owner, "Insufficient privelegies");
     require(myBalance() - ton("0.1") > 0, "Nothing to claim");
         self.collected = 0;
+        
+        nativeReserve(ton("0.1"), 0);
         send(SendParameters{
             to: self.owner,
             bounce: true,
-            value: myBalance() - ton("0.1"),
+            value: 0,
             body: AdminFetchProfit{
               queryId: msg.queryId       
             }.toCell(),
-            mode: SendPayGasSeparately + SendIgnoreErrors
+            mode: SendRemainingBalance + SendIgnoreErrors
         });
   }
 
@@ -194,8 +196,8 @@ contract Task5 with Deployable {
   get fun profit(): Int { // not working
     // return self.collected - ton("0.1");
     let profit: Int = self.collected - ton("0.1");
-    // if(profit > 0){ return profit;}
-    return profit;
+    if(profit > 0){ return profit;}
+    return 0;
   }
 
   get fun balance(): Int { 
