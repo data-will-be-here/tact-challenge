@@ -113,10 +113,11 @@ contract Task5 with Deployable {
               }
               self.nfts_map.set(rand, null); // mark nft as sent
               self.collected = self.collected + ton("2"); // add admin profit in profit counter
+              nativeReserve(self.collected, 0);
               send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
                   to: nftAddress!!,
                   bounce: true,
-                  value: myBalance() - self.collected - context().readForwardFee(), // 2.4 - (2.4 - 2 + 0.025) = 2.4 - (0.4 - 0.025) = 2.4 - 0.425
+                  value: 0, // 2.4 - (2.4 - 2 + 0.025) = 2.4 - (0.4 - 0.025) = 2.4 - 0.425
                   body: Transfer{
                     queryId: msg.queryId,           
                     newOwner: msg.prevOwner, 
@@ -125,7 +126,7 @@ contract Task5 with Deployable {
                     forwardAmount: 0,
                     forwardPayload: emptySlice()
                   }.toCell(),
-                  mode: SendPayGasSeparately
+                  mode: SendRemainingBalance + SendIgnoreErrors
               });
       }
     }
@@ -138,7 +139,7 @@ contract Task5 with Deployable {
         send(SendParameters{
             to: self.owner,
             bounce: true,
-            value: myBalance() - ton("0.1") - context().readForwardFee(),
+            value: myBalance() - ton("0.1"),
             body: AdminFetchProfit{
               queryId: msg.queryId       
             }.toCell(),
