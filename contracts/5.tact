@@ -196,6 +196,7 @@ contract Task5 with Deployable {
         mode: 0
       });
     }
+    num = num + 1;
     if(num < self.counter) {
     send(SendParameters{  // send nft back to the owner
       to: myAddress(),
