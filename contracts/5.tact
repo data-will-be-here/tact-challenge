@@ -196,10 +196,10 @@ contract Task5 with Deployable {
   }
 
   get fun balance(): Int { 
-    return myBalance();
+    return 0;//myBalance();
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
-    return emptyMap();//self.nfts_map;
+    return self.nfts_map; // works fine
   }
 }
