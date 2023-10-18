@@ -192,11 +192,11 @@ contract Task5 with Deployable {
 
   get fun profit(): Int { 
     // return self.collected - ton("0.1");
-    return self.collected - ton("0.1");
+    return 0;// self.collected - ton("0.1");
   }
 
   get fun balance(): Int { 
-    return 0;//myBalance();
+    return myBalance();
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
