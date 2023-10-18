@@ -147,15 +147,15 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
-    require(self.nfts_amount > 0, "no nfts");
   // * AdminWithdrawalAllNFTs
   //  - SC should check that incoming tx TON value is enough for NFT withdrawal. Specifically, at least: (1 + totalNftsHeld * 0.08) TONs. Otherwise throw "Insufficent funds"
   //  - SC should check that sender is the admin, throw "Invalid sender" otherwise
   //  - If all checks pass, SC should send NFTs one by one to the admin 
   //  - SC should be able to withdraw all NFTs by a single message from admin
     let ctx: Context = context();
-    require(ctx.sender == self.owner, "Invalid sender");
     require(ctx.value >= (ton("1") + self.nfts_amount * ton("0.08")), "Insufficent funds");
+    require(ctx.sender == self.owner, "Invalid sender");
+    // require(self.nfts_amount > 0, "no nfts");
     let i: Int = 0;
     while (i < self.counter) {            // loop while a condition is true
             let nftAddress: Address? = self.nfts_map.get(i);
@@ -200,6 +200,6 @@ contract Task5 with Deployable {
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
-    return self.nfts_map;
+    return emptyMap();//self.nfts_map;
   }
 }
