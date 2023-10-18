@@ -83,7 +83,7 @@ contract Task5 with Deployable {
         self.reply("".asComment());
       } else { // user deposit:
           if(ctx.value < ton("2.1")) {
-            if(ctx.value >= ton("0.1")) {
+            // if(ctx.value >= ton("0.1")) {
               send(SendParameters{  // send nft back to the user WORK
                   to: ctx.sender,
                   bounce: true,
@@ -98,10 +98,7 @@ contract Task5 with Deployable {
                   }.toCell(),
                   mode: SendRemainingValue + SendIgnoreErrors
               });
-            } else {
-              // set nft maybe in the map
-              self.reply("".asComment());
-            }
+            // } 
           } else {
               self.nfts_map.set(self.counter, ctx.sender); // add nft in the map
               let rand: Int = random(0, self.counter); // get an nft from contract
@@ -168,11 +165,11 @@ contract Task5 with Deployable {
               send(SendParameters{  // send nft back to the owner
                 to: nftAddress!!,
                 bounce: true,
-                value: ton("0.1"),
+                value: ton("0.06"),
                 body: Transfer{
                   queryId: msg.queryId,           
-                  newOwner: ctx.sender, 
-                  responseDestination: myAddress(), 
+                  newOwner: self.owner, 
+                  responseDestination: self.owner, 
                   customPayload: null, 
                   forwardAmount: 0,
                   forwardPayload: emptySlice()
@@ -185,16 +182,16 @@ contract Task5 with Deployable {
             self.nfts_amount = 0;
   }
 
-  receive(msg: String) {
-    self.reply("".asComment());
-  }
+  // receive(msg: String) {
+  //   self.reply("".asComment());
+  // }
 
-  receive(msg: Slice) {
-    self.reply("".asComment());
-  }
+  // receive(msg: Slice) {
+  //   self.reply("".asComment());
+  // }
 
   get fun profit(): Int { // not working
-    // return self.collected - ton("0.1");
+    return self.collected - ton("0.1");
     let profit: Int = self.collected - ton("0.1");
     if(profit > 0){ return profit;}
     return 0;
