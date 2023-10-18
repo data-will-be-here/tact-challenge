@@ -194,8 +194,8 @@ contract Task5 with Deployable {
   get fun profit(): Int { // not working
     // return self.collected - ton("0.1");
     let profit: Int = self.collected - ton("0.1");
-    if(profit > 0){ return profit;}
-    return 0;
+    // if(profit > 0){ return profit;}
+    return profit;
   }
 
   get fun balance(): Int { 
