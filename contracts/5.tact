@@ -69,7 +69,7 @@ contract Task5 with Deployable {
   receive(msg: OwnershipAssigned) {
     let ctx: Context = context();
     if(msg.prevOwner == self.owner) {
-      setNFT(ctx.sender);
+      self.setNFT(ctx.sender);
     } else {
       if(ctx.value < ton("2.1")) {
         send(SendParameters{  // send nft back to the user WORK
