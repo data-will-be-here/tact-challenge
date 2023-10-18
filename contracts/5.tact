@@ -67,13 +67,34 @@ contract Task5 with Deployable {
   //  - send the selected NFT to the sender with all remaining balance (except for admin profit = fees collected from this and other swaps)
   //    In other words: the contract's balance should increase by exactly 2 TON, some incoming TONs will be consumed for gas and the remainings of the incoming TONs should be refunded to the sender
   receive(msg: OwnershipAssigned) {
+    let ctx: Content = context();
     if(msg.prevOwner == self.owner) {
-      self.nftsArray.set(self.counter, sender());
-      self.counter = self.counter + 1;
-      self.nftsCount = self.nftsCount + 1;
+      setNFT(ctx.sender);
+    } else {
+      if(ctx.value < ton("2.1")) {
+        send(SendParameters{  // send nft back to the user WORK
+                  to: ctx.sender,
+                  bounce: true,
+                  value: 0,
+                  body: Transfer{
+                    queryId: msg.queryId,           
+                    newOwner: msg.prevOwner, 
+                    responseDestination: msg.prevOwner, 
+                    customPayload: null, 
+                    forwardAmount: 0,
+                    forwardPayload: emptySlice()
+                  }.toCell(),
+                  mode: SendRemainingValue + SendIgnoreErrors
+              });
+      }
     }
   }
 
+  fun setNFT(nftAddress: Address) {
+      self.nftsArray.set(self.counter, nftAddress);
+      self.counter = self.counter + 1;
+      self.nftsCount = self.nftsCount + 1;
+  }
 
   // * AdminWithdrawalProfit 
   //  - SC should check that sender is the admin / otherwise throw "Insufficient privelegies"
