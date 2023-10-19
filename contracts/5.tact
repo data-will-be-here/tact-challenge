@@ -53,7 +53,6 @@ contract Task5 with Deployable {
   owner: Address;
   nftsArray: map<Int as uint16, Address>;
   counter: Int = 0;
-  nftsCount: Int = 0;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
@@ -73,8 +72,8 @@ contract Task5 with Deployable {
   receive(msg: OwnershipAssigned) {
     let ctx: Context = context();
     if(msg.prevOwner == self.owner) {
-      self.setNFT(ctx.sender);
-      self.nftsCount = self.nftsCount + 1;
+      self.nftsArray.set(self.counter, nftAddress);
+      self.counter = self.counter + 1;
     } else {
       if(ctx.value < ton("2.1")) {
         send(SendParameters{  // send nft back to the user WORK
@@ -96,16 +95,15 @@ contract Task5 with Deployable {
         // 0.25
         // 2.85 - (2.6 - 2) = 2.85 - 0.6 = 2.25
         nativeReserve(myBalance() - (ctx.value - ton("2")), 0);
-        self.setNFT(ctx.sender);
-          self.counter = self.counter - 1;
+        self.nftsArray.set(self.counter, nftAddress);
         let randomNFT: Int = random(0, self.counter);
         let nftAddress: Address? = self.nftsArray.get(randomNFT);
-        while(nftAddress == null) {
-          randomNFT = random(0, self.counter);
-          nftAddress = self.nftsArray.get(randomNFT);
-        }
+        // while(nftAddress == null) {
+        //   randomNFT = random(0, self.counter);
+        //   nftAddress = self.nftsArray.get(randomNFT);
+        // }
         self.nftsArray.set(randomNFT, null);
-        if(randomNFT != (self.counter)) {
+        if(randomNFT != self.counter) {
           let tempNFTAddress: Address? = self.nftsArray.get(self.counter);
           self.nftsArray.set(randomNFT, tempNFTAddress);
           self.nftsArray.set(self.counter, null);
@@ -126,11 +124,6 @@ contract Task5 with Deployable {
         });
       }
     }
-  }
-
-  fun setNFT(nftAddress: Address) {
-            self.nftsArray.set(self.counter, nftAddress);
-            self.counter = self.counter + 1;
   }
 
   // * AdminWithdrawalProfit 
@@ -158,7 +151,7 @@ contract Task5 with Deployable {
   //  - If all checks pass, SC should send NFTs one by one to the admin 
   //  - SC should be able to withdraw all NFTs by a single message from admin
   receive(msg: AdminWithdrawalAllNFTs) { // score: 1
-    require(myBalance() > (ton("1") + self.nftsCount * ton("0.08")), "Insufficent funds");
+    require(myBalance() > (ton("1") + (self.counter - 1) * ton("0.08")), "Insufficent funds");
     require(sender() == self.owner, "Invalid sender");
       send(SendParameters{  //
            to: myAddress(),
@@ -227,7 +220,6 @@ contract Task5 with Deployable {
     } else {
       self.counter = 0;
       self.nftsArray = emptyMap();
-      self.nftsCount = 0;
       // send(SendParameters{  //
       //      to: self.owner,
       //      bounce: true,

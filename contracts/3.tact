@@ -116,7 +116,7 @@ contract Task3 with Deployable {
     if(token == self.jB) {
       return self.a * self.decimal / self.b; 
     } 
-      return self.b * self.decimal / self.a;
+      return self.b * self.decimal / self.a; //
   }
   
   get fun balance(token: Address): Int { 
