@@ -125,16 +125,6 @@ contract Task5 with Deployable {
   fun setNFT(nftAddress: Address) {
             self.nftsArray.set(self.counter, nftAddress);
             self.counter = self.counter + 1;
-      //   let i: Int = 0;
-      //   let checkNullNFT: Address? = nftAddress;
-      //   while (checkNullNFT != null) {            // loop while a condition is true
-      //       checkNullNFT = self.nftsArray.get(i);
-      //       i = i + 1;
-      //   }
-      // self.nftsArray.set(i - 1, nftAddress);
-      // if(i >= self.counter) {
-      //   self.counter = i;
-      // }
   }
 
   // * AdminWithdrawalProfit 
@@ -229,8 +219,8 @@ contract Task5 with Deployable {
            mode: SendRemainingValue + SendIgnoreErrors
       });
     } else {
-      self.nftsArray = emptyMap();
       self.counter = 0;
+      self.nftsArray = emptyMap();
       self.nftsCount = 0;
       send(SendParameters{  //
            to: self.owner,
