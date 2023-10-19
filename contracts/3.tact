@@ -50,6 +50,8 @@ contract Task3 with Deployable {
   jA: Address;
   jB: Address;
 
+  const decimal: Int as coins = 1000000000;
+
   init(admin: Address, newJA: Address, newJB: Address) {
     self.owner = admin;
     self.jA = newJA; // wallet address
@@ -61,7 +63,7 @@ contract Task3 with Deployable {
     require(jettonAddress == self.jA || jettonAddress == self.jB, "not an paired jetton");
     if(msg.from == self.owner) {
       if(jettonAddress == self.jA) { self.a = self.a + msg.amount; }
-        else { self.b = self.b + msg.amount; }
+      else { self.b = self.b + msg.amount; }
         send(SendParameters{
           to: msg.from,
           value: 0, 
@@ -69,7 +71,7 @@ contract Task3 with Deployable {
           bounce: true
       });
     } else {
-      let to_recv: Int = (self.b * 1000000000 / self.a) * msg.amount / 1000000000;
+      let to_recv: Int as coins = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
       let dest: Address = self.jB;
       if(jettonAddress == self.jA) { // send B tokens, plus A tokens
         if(self.b < to_recv || to_recv == 0) {
@@ -80,7 +82,7 @@ contract Task3 with Deployable {
           self.b = self.b - to_recv;
         }
       } else {
-        to_recv = (self.a * 1000000000 / self.b) * msg.amount / 1000000000;
+        to_recv = (self.a * self.decimal / self.b) * msg.amount / self.decimal;
         if(self.a < to_recv || to_recv == 0) {
           to_recv = msg.amount;
         } else {
@@ -107,67 +109,11 @@ contract Task3 with Deployable {
     }
   } 
 
-  // fun swap(from: Address, amount: Int, jettonAddress: Address): Int {
-    //   if(from == self.owner) {
-    //   if(jettonAddress == self.jA) { self.a = self.a + amount; }
-    //     else { self.b = self.b + amount; }
-    //     send(SendParameters{
-    //       to: from,
-    //       value: 0, 
-    //       mode: SendRemainingValue + SendIgnoreErrors,
-    //       bounce: true
-    //   });
-    //   return 1;
-    // } else {
-    //   let to_recv: Int = (self.b * 1000000000 / self.a) * amount / 1000000000;
-    //   let dest: Address = self.jB;
-    //   if(jettonAddress == self.jA) { // send B tokens, plus A tokens
-    //     if(self.b < to_recv || to_recv == 0) {
-    //       dest = self.jA;
-    //       to_recv = amount;
-    //     } else {
-    //       self.a = self.a + amount;
-    //       self.b = self.b - to_recv;
-    //     }
-    //       return self.sendTokens(dest, to_recv, from);
-    //   } else {
-    //     to_recv = (self.a * 1000000000 / self.b) * amount / 1000000000;
-    //     if(self.a < to_recv || to_recv == 0) {
-    //       to_recv = amount;
-    //     } else {
-    //       dest = self.jA;
-    //       self.b = self.b + amount;
-    //       self.a = self.a - to_recv;
-    //     }
-    //       return self.sendTokens(dest, to_recv, from);
-    //   }
-    // }
-  // }
-
-  // fun sendTokens(to: Address, to_recv: Int, dest: Address): Int {
-  //       send(SendParameters{
-  //           to: to,
-  //           value: 0,
-  //           mode: SendRemainingValue + SendIgnoreErrors,
-  //           bounce: true, 
-  //           body: TokenTransfer {
-  //               queryId: 0,
-  //               amount: to_recv,
-  //               destination: dest,
-  //               responseDestination: myAddress(),
-  //               customPayload: null,
-  //               forwardTonAmount: ton("0.01"),
-  //               forwardPayload: emptySlice()
-  //           }.toCell()
-  //           });
-  //           return 1;
-  // }
-
   get fun price(token: Address): Int { 
     if(token == self.jB) {
-      return self.a * 1000000000 / self.b; // amountOfJettonAOnContract * decimal / amountOfJettonBOnContract 10 * 1000000000 / 2 = 5000000000
+      return self.a * self.decimal / self.b; // amountOfJettonAOnContract * decimal / amountOfJettonBOnContract 10 * self.decimal / 2 = 5000000000
     } 
-      return self.b * 1000000000 / self.a; //
+      return self.b * self.decimal / self.a; //
   }
   
   get fun balance(token: Address): Int { 
