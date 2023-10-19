@@ -184,20 +184,37 @@ contract Task5 with Deployable {
       nftAddress = self.nftsArray.get(id);
     }
     if(nftAddress != null) {
-      send(SendParameters{  //
-          to: nftAddress!!,
-          bounce: true,
-          value: ton("0.06"), 
-          body: Transfer{
-            queryId: msg.queryId,           
-            newOwner: self.owner, 
-            responseDestination: self.owner, 
-            customPayload: null, 
-            forwardAmount: 0,
-            forwardPayload: emptySlice()
-          }.toCell(),
-          mode: SendIgnoreErrors
-      });
+      if(id < self.counter) {
+        send(SendParameters{  //
+            to: nftAddress!!,
+            bounce: true,
+            value: ton("0.06"), 
+            body: Transfer{
+              queryId: msg.queryId,           
+              newOwner: self.owner, 
+              responseDestination: self.owner, 
+              customPayload: null, 
+              forwardAmount: 0,
+              forwardPayload: emptySlice()
+            }.toCell(),
+            mode: SendIgnoreErrors
+        });
+      } else {
+        send(SendParameters{  //
+            to: nftAddress!!,
+            bounce: true,
+            value: 0, 
+            body: Transfer{
+              queryId: msg.queryId,           
+              newOwner: self.owner, 
+              responseDestination: self.owner, 
+              customPayload: null, 
+              forwardAmount: 0,
+              forwardPayload: emptySlice()
+            }.toCell(),
+            mode: SendRemainingValue + SendIgnoreErrors
+        });
+      }
     }
     if(id < self.counter) {
       id = id + 1;
@@ -212,12 +229,6 @@ contract Task5 with Deployable {
            mode: SendRemainingValue + SendIgnoreErrors
       });
     } else {
-      send(SendParameters{  //
-           to: self.owner,
-           bounce: true,
-           value: 0, 
-           mode: SendRemainingValue + SendIgnoreErrors
-      });
       self.nftsArray = emptyMap();
       self.nftsCount = 0;
       self.counter = 0;
