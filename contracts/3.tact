@@ -73,7 +73,6 @@ contract Task3 with Deployable {
           mode: SendRemainingValue + SendIgnoreErrors,
           bounce: true
       });
-      return 1;
     } else {
       let to_recv: Int = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
       let dest: Address = self.jB;
