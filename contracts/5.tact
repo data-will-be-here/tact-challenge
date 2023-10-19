@@ -164,7 +164,6 @@ contract Task5 with Deployable {
   receive(msg: AdminWithdrawalAllNFTs) { // score: 1
     require(sender() == self.owner, "Invalid sender");
     require(myBalance() > (ton("1") + self.nftsCount * ton("0.08")), "Insufficent funds");
-    require(self.nftsCount > 0, "Nothing to claim");
       send(SendParameters{  //
            to: myAddress(),
            bounce: true,
