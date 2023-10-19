@@ -69,7 +69,7 @@ contract Task3 with Deployable {
       //     value: 0, 
       //     mode: SendRemainingValue + SendIgnoreErrors,
       //     bounce: true
-      // });
+      // }); 
     } else {
       let jet1: Int = self.a; // get B send A
       let jet2: Int = self.b;
