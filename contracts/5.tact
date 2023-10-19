@@ -240,6 +240,7 @@ contract Task5 with Deployable {
       });
     }
   }
+  
 
   // Getters
   // * profit
