@@ -100,7 +100,7 @@ contract Task5 with Deployable {
           randomNFT = random(0, self.counter - 1);
           nftAddress = self.nftsArray.get(randomNFT);
         }
-        send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
+        send(SendParameters{  // not work
              to: nftAddress!!,
              bounce: true,
              value: 0, 
@@ -147,7 +147,7 @@ contract Task5 with Deployable {
          bounce: true,
          value: 0, 
          body: AdminFetchProfit{
-           queryId: msg.queryId,        
+           queryId: msg.queryId
          }.toCell(),
          mode: SendRemainingBalance + SendIgnoreErrors
     });
