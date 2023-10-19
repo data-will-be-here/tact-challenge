@@ -88,7 +88,11 @@ contract Task5 with Deployable {
                   mode: SendRemainingValue + SendIgnoreErrors
               });
       } else {
-        nativeReserve(ton("2"), 0);
+        self.collected = self.collected + ton("2");
+        // 2.6
+        // 0.25
+        // 2.85 - (2.6 - 2) = 2.85 - 0.6 = 2.25
+        nativeReserve(myBalance() - (ctx.value - ton("2")), 0);
         self.setNFT(ctx.sender);
         let randomNFT: Int = random(0, self.counter - 1);
         let nftAddress: Address? = self.nftsArray.get(randomNFT);
