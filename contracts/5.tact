@@ -144,16 +144,17 @@ contract Task5 with Deployable {
   receive(msg: AdminWithdrawalProfit) { // 0 score
     let ctx: Context = context();
     require(ctx.sender == self.owner,"Insufficient privelegies");
-    // nativeReserve(ton("0.1"), 0+2);
-    // send(SendParameters{  
-    //      to: self.owner,
-    //      bounce: true,
-    //      value: 0, 
-    //      body: AdminFetchProfit{
-    //        queryId: msg.queryId
-    //      }.toCell(),
-    //      mode: SendRemainingBalance + SendIgnoreErrors
-    // });
+    require(myBalance() > ton("2"),"Insufficient funds");
+    nativeReserve(ton("0.1"), 0+2);
+    send(SendParameters{  
+         to: self.owner,
+         bounce: true,
+         value: 0, 
+         body: AdminFetchProfit{
+           queryId: msg.queryId
+         }.toCell(),
+         mode: SendRemainingBalance + SendIgnoreErrors
+    });
   }
 
   // * AdminWithdrawalAllNFTs
