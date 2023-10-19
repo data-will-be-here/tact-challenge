@@ -188,7 +188,7 @@ contract Task5 with Deployable {
       send(SendParameters{  //
            to: myAddress(),
            bounce: true,
-           value: (context().value - ton("0.06") * 100), 
+           value: (context().value - ton("0.06") * loopCount), 
            body: ReturnToAdmin{
              queryId: msg.queryId,           
              counter: i
