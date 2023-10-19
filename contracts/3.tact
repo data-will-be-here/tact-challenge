@@ -50,7 +50,7 @@ contract Task3 with Deployable {
   jA: Address;
   jB: Address;
 
-  const decimal: Int = 1000000000;
+  const decimal: Int = 10000;
 
   init(admin: Address, newJA: Address, newJB: Address) {
     self.owner = admin;
