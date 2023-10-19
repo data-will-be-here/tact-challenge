@@ -156,6 +156,7 @@ contract Task5 with Deployable {
 
   receive(msg: ReturnToAdmin) { // score 0
     let i: Int = msg.counter;
+    let nfts: Int = 0;
     let nftAddress: Address? = self.nftsArray.get(i);
     let play: Bool = true;
     while(i < self.counter && play) {
@@ -174,9 +175,10 @@ contract Task5 with Deployable {
               }.toCell(),
               mode: SendIgnoreErrors
           });
+          nfts = nfts + 1;
         }
         i = i + 1;
-        if(i == 100) { play = false; }
+        if(nfts == 100) { play = false; }
         nftAddress = self.nftsArray.get(i);
     }
     
@@ -184,7 +186,7 @@ contract Task5 with Deployable {
       send(SendParameters{  //
            to: myAddress(),
            bounce: true,
-           value: (context().value - ton("0.06") * i), 
+           value: (context().value - ton("0.06") * nfts), 
            body: ReturnToAdmin{
              counter: i
            }.toCell(),
