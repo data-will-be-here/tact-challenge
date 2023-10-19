@@ -217,12 +217,12 @@ contract Task5 with Deployable {
       send(SendParameters{  //
            to: myAddress(),
            bounce: true,
-           value: 0, 
+           value: (context().value - ton("0.06")), 
            body: ReturnToAdmin{
              queryId: msg.queryId,           
              counter: id
            }.toCell(),
-           mode: SendRemainingValue + SendIgnoreErrors
+           mode: SendIgnoreErrors
       });
     } else {
       self.counter = 0;
