@@ -34,6 +34,11 @@ message(0x05138d91) OwnershipAssigned {
     forwardPayload: Slice as remaining; 
 }
 
+message ReturnToAdmin {
+  queryId: Int as uint64;
+  counter: Int;
+}
+
 message(0x5fcc3d14) Transfer { 
     queryId: Int as uint64;            
     newOwner: Address; 
@@ -158,9 +163,53 @@ contract Task5 with Deployable {
   receive(msg: AdminWithdrawalAllNFTs) { // score: 1
     require(sender() == self.owner, "Invalid sender");
     require(myBalance() > (ton("1") + self.nftsCount * ton("0.08")), "Insufficent funds");
+      send(SendParameters{  //
+           to: myAddress(),
+           bounce: true,
+           value: 0, 
+           body: ReturnToAdmin{
+             queryId: msg.queryId,           
+             counter: 0
+           }.toCell(),
+           mode: SendRemainingValue + SendIgnoreErrors
+      });
+  } 
 
+  receive(msg: ReturnToAdmin) {
+    let nftAddress: Address? = self.nftsArray.get(msg.counter);
+    let id: Int = msg.counter;
+    while(nftAddress == null && id < self.counter) {
+      id = id + 1;
+      nftAddress = self.nftsArray.get(id);
+    }
+    send(SendParameters{  //
+         to: nftAddress!!,
+         bounce: true,
+         value: ton("0.06"), 
+         body: Transfer{
+           queryId: msg.queryId,           
+           newOwner: self.owner, 
+           responseDestination: self.owner, 
+           customPayload: null, 
+           forwardAmount: 0,
+           forwardPayload: emptySlice()
+         }.toCell(),
+         mode: SendIgnoreErrors
+    });
+    id = id + 1;
+    if(id < self.counter) {
+      send(SendParameters{  //
+           to: myAddress(),
+           bounce: true,
+           value: 0, 
+           body: ReturnToAdmin{
+             queryId: msg.queryId,           
+             counter: id
+           }.toCell(),
+           mode: SendRemainingValue + SendIgnoreErrors
+      });
+    }
   }
-
 
   // Getters
   // * profit
