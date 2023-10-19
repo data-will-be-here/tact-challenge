@@ -74,28 +74,48 @@ contract Task3 with Deployable {
       });
     } else {
       
-      let jet1: Int = self.a;
-      let jet2: Int = self.b;
-      let dest: Address = self.jA;
-      if(!isJetA) {
-        jet1 = self.b;
-        jet2 = self.a;
-        dest = self.jB;
+      let jet1: Address = self.b; // get A send B
+      let jet2: Address = self.a;
+      let dest: Address = self.jB;
+      if(!isJetA) { // get B send A
+        jet1 = self.a;
+        jet2 = self.b;
+        dest = self.jA;
       }
+      // Example formula for amountOfAJettonToSend in B->A swap will be
+  // (amountOfJettonAOnContract * decimal / amountOfJettonBOnContract) * amountOfTokenBToSwap / decimal
       let to_recv: Int = (jet1 * self.decimal / jet2) * msg.amount / self.decimal;
       // let to_recv: Int = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
       if(jet2 < to_recv || to_recv == 0) {
         dest = jettonAddress;
         to_recv = msg.amount;
       } else {
-        if(isJetA) { 
+        if(isJetA) { // get A send B
           self.a = self.a + msg.amount;
           self.b = self.b - to_recv;
-         } else {
+         } else { // get B send A
           self.b = self.b + msg.amount;
           self.a = self.a - to_recv;
          }
       }
+      // if(jettonAddress == self.jA) { // send B tokens, plus A tokens
+      //   if(self.b < to_recv || to_recv == 0) {
+      //     dest = self.jA;
+      //     to_recv = msg.amount;
+      //   } else {
+      //     self.a = self.a + msg.amount;
+      //     self.b = self.b - to_recv;
+      //   }
+      // } else {
+      //   to_recv = (self.a * self.decimal / self.b) * msg.amount / self.decimal;
+      //   if(self.a < to_recv || to_recv == 0) {
+      //     to_recv = msg.amount;
+      //   } else {
+      //     dest = self.jA;
+      //     self.b = self.b + msg.amount;
+      //     self.a = self.a - to_recv;
+      //   }
+      // }
           send(SendParameters{
             to: dest,
             value: 0,
