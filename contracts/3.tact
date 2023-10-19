@@ -50,7 +50,7 @@ contract Task3 with Deployable {
   jA: Address;
   jB: Address;
 
-  const decimal: Int as coins = 1000000000;
+  const decimal: Int = 1000000000;
 
   init(admin: Address, newJA: Address, newJB: Address) {
     self.owner = admin;
@@ -71,7 +71,7 @@ contract Task3 with Deployable {
           bounce: true
       });
     } else {
-      let to_recv: Int as coins = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
+      let to_recv: Int = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
       let dest: Address = self.jB;
       if(jettonAddress == self.jA) { // send B tokens, plus A tokens
         if(self.b < to_recv || to_recv == 0) {
