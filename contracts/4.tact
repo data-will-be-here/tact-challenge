@@ -32,11 +32,7 @@ contract Task4 with Deployable {
 
   receive(msg: OwnershipAssigned) {
     let sender: Address = sender();
-    if(self.nft == null) {
-      self.owner = msg.prevOwner;
-      self.nft = sender;
-      self.unlockTime = now() + msg.forwardPayload.loadUint(32);
-    } else {
+    if(self.nft != null) {
         send(SendParameters{
             to: sender,
             bounce: false,
@@ -51,6 +47,10 @@ contract Task4 with Deployable {
             }.toCell(),
             mode: SendRemainingValue + SendIgnoreErrors
         });
+    } else {
+      self.owner = msg.prevOwner;
+      self.nft = sender;
+      self.unlockTime = now() + msg.forwardPayload.loadUint(32);
     }
   }
 
@@ -81,7 +81,7 @@ contract Task4 with Deployable {
   }
 
   get fun time(): Int {
-    return self.unlockTime - now(); //
+    return self.unlockTime - now(); // 
   }
 
   get fun nft(): Address? {

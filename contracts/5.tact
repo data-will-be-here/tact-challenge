@@ -97,8 +97,7 @@ contract Task5 with Deployable {
         let nftAddress: Address? = self.nftsArray.get(randomNFT);
         self.nftsArray.set(randomNFT, null);
         if(randomNFT != self.counter) {
-          let tempNFTAddress: Address? = self.nftsArray.get(self.counter);
-          self.nftsArray.set(randomNFT, tempNFTAddress);
+          self.nftsArray.set(randomNFT, self.nftsArray.get(self.counter));
           self.nftsArray.set(self.counter, null);
         }
         send(SendParameters{  // not work
