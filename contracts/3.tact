@@ -45,8 +45,8 @@ message(0xf8a7ea5) TokenTransfer {
 
 contract Task3 with Deployable {
   owner: Address;
-  a: Int;
-  b: Int;
+  a: Int = 0;
+  b: Int = 0;
   jA: Address;
   jB: Address;
 
@@ -54,8 +54,6 @@ contract Task3 with Deployable {
     self.owner = admin;
     self.jA = newJA; // wallet address
     self.jB = newJB; // wallet address
-    self.a = 0; // 10
-    self.b = 0; // 2
   }
 
   receive(msg: TokenNotification) {
