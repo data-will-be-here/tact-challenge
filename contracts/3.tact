@@ -50,7 +50,7 @@ contract Task3 with Deployable {
   jA: Address;
   jB: Address;
 
-  const decimal: Int = 10000;
+  const decimal: Int = 1000000000;
 
   init(admin: Address, newJA: Address, newJB: Address) {
     self.owner = admin;
@@ -61,8 +61,10 @@ contract Task3 with Deployable {
   receive(msg: TokenNotification) {
     let jettonAddress: Address = sender();
     require(jettonAddress == self.jA || jettonAddress == self.jB, "not an paired jetton");
+    let isJetA: Bool = true;
+    if(jettonAddress == self.jB) { isJetA = false; }
     if(msg.from == self.owner) {
-      if(jettonAddress == self.jA) { self.a = self.a + msg.amount; }
+      if(isJetA) { self.a = self.a + msg.amount; }
       else { self.b = self.b + msg.amount; }
         send(SendParameters{
           to: msg.from,
@@ -71,25 +73,28 @@ contract Task3 with Deployable {
           bounce: true
       });
     } else {
-      let to_recv: Int = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
-      let dest: Address = self.jB;
-      if(jettonAddress == self.jA) { // send B tokens, plus A tokens
-        if(self.b < to_recv || to_recv == 0) {
-          dest = self.jA;
-          to_recv = msg.amount;
-        } else {
+      
+      let jet1: Int = self.a;
+      let jet2: Int = self.b;
+      let dest: Address = self.jA;
+      if(!isJetA) {
+        jet1 = self.b;
+        jet2 = self.a;
+        dest = self.jB;
+      }
+      let to_recv: Int = (jet2 * self.decimal / jet1) * msg.amount / self.decimal;
+      // let to_recv: Int = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
+      if(jet2 < to_recv || to_recv == 0) {
+        dest = jettonAddress;
+        to_recv = msg.amount;
+      } else {
+        if(isJetA) { 
           self.a = self.a + msg.amount;
           self.b = self.b - to_recv;
-        }
-      } else {
-        to_recv = (self.a * self.decimal / self.b) * msg.amount / self.decimal;
-        if(self.a < to_recv || to_recv == 0) {
-          to_recv = msg.amount;
-        } else {
-          dest = self.jA;
+         } else {
           self.b = self.b + msg.amount;
           self.a = self.a - to_recv;
-        }
+         }
       }
           send(SendParameters{
             to: dest,
