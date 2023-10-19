@@ -194,7 +194,7 @@ contract Task5 with Deployable {
               newOwner: self.owner, 
               responseDestination: self.owner, 
               customPayload: null, 
-              forwardAmount: 0,
+              forwardAmount: ton("0.01"),
               forwardPayload: emptySlice()
             }.toCell(),
             mode: SendIgnoreErrors
@@ -209,7 +209,7 @@ contract Task5 with Deployable {
               newOwner: self.owner, 
               responseDestination: self.owner, 
               customPayload: null, 
-              forwardAmount: 0,
+              forwardAmount: ton("0.01"),
               forwardPayload: emptySlice()
             }.toCell(),
             mode: SendRemainingValue + SendIgnoreErrors
@@ -240,7 +240,7 @@ contract Task5 with Deployable {
       });
     }
   }
-  
+
 
   // Getters
   // * profit
