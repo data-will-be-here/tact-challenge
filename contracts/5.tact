@@ -161,8 +161,8 @@ contract Task5 with Deployable {
     let i: Int = msg.counter;
     let nftAddress: Address? = self.nftsArray.get(i);
     let loopCount: Int = self.counter - i;
-    if(loopCount > 99) {
-      loopCount = 100;
+    if(loopCount > 149) {
+      loopCount = 150;
     }
     repeat(loopCount) {
       if(nftAddress != null) {
