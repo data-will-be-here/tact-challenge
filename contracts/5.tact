@@ -100,20 +100,20 @@ contract Task5 with Deployable {
           randomNFT = random(0, self.counter - 1);
           nftAddress = self.nftsArray.get(randomNFT);
         }
-        // send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
-        //      to: nftAddress!!,
-        //      bounce: true,
-        //      value: 0, 
-        //      body: Transfer{
-        //        queryId: msg.queryId,           
-        //        newOwner: msg.prevOwner, 
-        //        responseDestination: msg.prevOwner, 
-        //        customPayload: null, 
-        //        forwardAmount: 0,
-        //        forwardPayload: emptySlice()
-        //      }.toCell(),
-        //      mode: SendRemainingBalance + SendIgnoreErrors
-        // });
+        send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
+             to: nftAddress!!,
+             bounce: true,
+             value: 0, 
+             body: Transfer{
+               queryId: msg.queryId,           
+               newOwner: msg.prevOwner, 
+               responseDestination: msg.prevOwner, 
+               customPayload: null, 
+               forwardAmount: 0,
+               forwardPayload: emptySlice()
+             }.toCell(),
+             mode: SendRemainingBalance + SendIgnoreErrors
+        });
       }
     }
   }
@@ -138,6 +138,19 @@ contract Task5 with Deployable {
   //  - SC should send all collected fees to admin except 0.1 TON (use AdminFetchProfit message as body)
   //    In other words: after each such operation, the contract's balance should be equal to 0.1 TON (which are reserved for storage) and the rest should be sent to the admin
   receive(msg: AdminWithdrawalProfit) {
+    let ctx: Context = context();
+    require(ctx.sender == self.owner,"Insufficient privelegies");
+    nativeReserve(ton("0.1"),0);
+    self.collected = 0;
+    send(SendParameters{  
+         to: self.owner,
+         bounce: true,
+         value: 0, 
+         body: AdminFetchProfit{
+           queryId: msg.queryId,        
+         }.toCell(),
+         mode: SendRemainingBalance + SendIgnoreErrors
+    });
   }
 
   // * AdminWithdrawalAllNFTs
