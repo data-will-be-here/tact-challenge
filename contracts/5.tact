@@ -228,12 +228,12 @@ contract Task5 with Deployable {
       self.counter = 0;
       self.nftsArray = emptyMap();
       self.nftsCount = 0;
-      send(SendParameters{  //
-           to: self.owner,
-           bounce: true,
-           value: 0, 
-           mode: SendRemainingValue + SendIgnoreErrors
-      });
+      // send(SendParameters{  //
+      //      to: self.owner,
+      //      bounce: true,
+      //      value: 0, 
+      //      mode: SendRemainingValue + SendIgnoreErrors
+      // });
     }
   }
   
@@ -244,7 +244,7 @@ contract Task5 with Deployable {
   // * nfts
   //  - returns dict of held NFTs with NFT indexes (sequential numbers from 0, 1, 2 ... and up to 'totalNftsHeld-1') as keys and NFT address as values 
   //    the order of NFTs in this dictionary doesn't matter
-  get fun profit(): Int { // maybe 1
+  get fun profit(): Int { // score: 1
     return myBalance() - ton("0.1");
   }
   
