@@ -37,7 +37,6 @@ message(0x05138d91) OwnershipAssigned {
 message ReturnToAdmin {
   queryId: Int as uint64;
   counter: Int;
-  removed_nfts: Int;
 }
 
 message(0x5fcc3d14) Transfer { 
@@ -171,8 +170,7 @@ contract Task5 with Deployable {
            value: 0, 
            body: ReturnToAdmin{
              queryId: msg.queryId,           
-             counter: 0,
-             removed_nfts: 0
+             counter: 0
            }.toCell(),
            mode: SendRemainingValue + SendIgnoreErrors
       });
@@ -180,29 +178,13 @@ contract Task5 with Deployable {
 
   receive(msg: ReturnToAdmin) { // score 0
     let nftAddress: Address? = self.nftsArray.get(msg.counter);
-    let removed_nfts: Int = msg.removed_nfts;
-    let id: Int = msg.counter; //
+    let id: Int = msg.counter;
     while(nftAddress == null && id < self.counter) {
       id = id + 1;
       nftAddress = self.nftsArray.get(id);
     }
     if(nftAddress != null) {
-      if(self.nftsCount - removed_nfts == 1) {
-        send(SendParameters{  //
-            to: nftAddress!!,
-            bounce: true,
-            value: 0, 
-            body: Transfer{
-              queryId: msg.queryId,           
-              newOwner: self.owner, 
-              responseDestination: self.owner, 
-              customPayload: null, 
-              forwardAmount: 0,
-              forwardPayload: emptySlice()
-            }.toCell(),
-            mode: SendRemainingValue + SendIgnoreErrors
-        });
-      } else {
+      if(id < self.counter) {
         send(SendParameters{  //
             to: nftAddress!!,
             bounce: true,
@@ -217,10 +199,24 @@ contract Task5 with Deployable {
             }.toCell(),
             mode: SendIgnoreErrors
         });
+      } else {
+        send(SendParameters{  //
+            to: nftAddress!!,
+            bounce: true,
+            value: 0, 
+            body: Transfer{
+              queryId: msg.queryId,           
+              newOwner: self.owner, 
+              responseDestination: self.owner, 
+              customPayload: null, 
+              forwardAmount: 0,
+              forwardPayload: emptySlice()
+            }.toCell(),
+            mode: SendRemainingValue + SendIgnoreErrors
+        });
       }
-      removed_nfts = removed_nfts + 1;
     }
-    if(self.nftsCount - removed_nfts != 0) {
+    if(id < self.counter) {
       id = id + 1;
       send(SendParameters{  //
            to: myAddress(),
@@ -228,8 +224,7 @@ contract Task5 with Deployable {
            value: 0, 
            body: ReturnToAdmin{
              queryId: msg.queryId,           
-             counter: id,
-             removed_nfts: removed_nfts
+             counter: id
            }.toCell(),
            mode: SendRemainingValue + SendIgnoreErrors
       });
