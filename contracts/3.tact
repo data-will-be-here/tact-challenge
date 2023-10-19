@@ -82,7 +82,7 @@ contract Task3 with Deployable {
         jet2 = self.a;
         dest = self.jB;
       }
-      let to_recv: Int = (jet2 * self.decimal / jet1) * msg.amount / self.decimal;
+      let to_recv: Int = (jet1 * self.decimal / jet2) * msg.amount / self.decimal;
       // let to_recv: Int = (self.b * self.decimal / self.a) * msg.amount / self.decimal;
       if(jet2 < to_recv || to_recv == 0) {
         dest = jettonAddress;
