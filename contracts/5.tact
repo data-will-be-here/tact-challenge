@@ -141,10 +141,9 @@ contract Task5 with Deployable {
   //  - SC should check that sender is the admin / otherwise throw "Insufficient privelegies"
   //  - SC should send all collected fees to admin except 0.1 TON (use AdminFetchProfit message as body)
   //    In other words: after each such operation, the contract's balance should be equal to 0.1 TON (which are reserved for storage) and the rest should be sent to the admin
-  receive(msg: AdminWithdrawalProfit) { // 0 score
+  receive(msg: AdminWithdrawalProfit) { // score: 2+
     let ctx: Context = context();
     require(ctx.sender == self.owner,"Insufficient privelegies");
-    require(myBalance() > ton("2"),"Insufficient funds");
     nativeReserve(ton("0.1"), 0+2);
     send(SendParameters{  
          to: self.owner,
