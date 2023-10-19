@@ -78,7 +78,7 @@ contract Task3 with Deployable {
       });
       return 1;
     } else {
-      let to_recv: Int = (self.b * self.decimal / self.a) * amount / self.decimal;;
+      let to_recv: Int = (self.b * self.decimal / self.a) * amount / self.decimal;
       let dest: Address = self.jB;
       if(jettonAddress == self.jA) { // send B tokens, plus A tokens
         if(self.b < to_recv || to_recv == 0) {

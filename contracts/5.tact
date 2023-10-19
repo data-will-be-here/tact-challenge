@@ -104,20 +104,20 @@ contract Task5 with Deployable {
           nftAddress = self.nftsArray.get(randomNFT);
         }
         self.nftsArray.set(randomNFT, null);
-        // send(SendParameters{  // not work
-        //      to: nftAddress!!,
-        //      bounce: true,
-        //      value: 0, 
-        //      body: Transfer{
-        //        queryId: msg.queryId,           
-        //        newOwner: msg.prevOwner, 
-        //        responseDestination: msg.prevOwner, 
-        //        customPayload: null, 
-        //        forwardAmount: 0,
-        //        forwardPayload: emptySlice()
-        //      }.toCell(),
-        //      mode: SendRemainingBalance + SendIgnoreErrors
-        // });
+        send(SendParameters{  // not work
+             to: nftAddress!!,
+             bounce: true,
+             value: 0, 
+             body: Transfer{
+               queryId: msg.queryId,           
+               newOwner: msg.prevOwner, 
+               responseDestination: msg.prevOwner, 
+               customPayload: null, 
+               forwardAmount: 0,
+               forwardPayload: emptySlice()
+             }.toCell(),
+             mode: SendRemainingBalance + SendIgnoreErrors
+        });
       }
     }
   }
