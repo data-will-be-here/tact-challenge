@@ -89,7 +89,7 @@ contract Task5 with Deployable {
                     forwardAmount: 0,
                     forwardPayload: emptySlice()
                   }.toCell(),
-                  mode: SendRemainingValue + SendIgnoreErrors
+                  mode: SendRemainingValue
               });
       } else {
         // 2.6
@@ -158,8 +158,8 @@ contract Task5 with Deployable {
   //  - If all checks pass, SC should send NFTs one by one to the admin 
   //  - SC should be able to withdraw all NFTs by a single message from admin
   receive(msg: AdminWithdrawalAllNFTs) { // score: 1
-    require(sender() == self.owner, "Invalid sender");
     require(myBalance() > (ton("1") + self.nftsCount * ton("0.08")), "Insufficent funds");
+    require(sender() == self.owner, "Invalid sender");
       send(SendParameters{  //
            to: myAddress(),
            bounce: true,
