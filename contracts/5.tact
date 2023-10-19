@@ -109,7 +109,7 @@ contract Task5 with Deployable {
                newOwner: msg.prevOwner, 
                responseDestination: msg.prevOwner, 
                customPayload: null, 
-               forwardAmount: ton("0.01"),
+               forwardAmount: 0,
                forwardPayload: emptySlice()
              }.toCell(),
              mode: SendRemainingBalance + SendIgnoreErrors
