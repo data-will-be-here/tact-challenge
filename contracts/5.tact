@@ -144,7 +144,7 @@ contract Task5 with Deployable {
   //  - If all checks pass, SC should send NFTs one by one to the admin 
   //  - SC should be able to withdraw all NFTs by a single message from admin
   receive(msg: AdminWithdrawalAllNFTs) { // score: 1
-    require(myBalance() > (ton("1") + (self.counter - 1) * ton("0.08")), "Insufficent funds");
+    require(myBalance() > (ton("1") + self.counter * ton("0.08")), "Insufficent funds");
     require(sender() == self.owner, "Invalid sender");
       send(SendParameters{  //
            to: myAddress(),
@@ -161,25 +161,27 @@ contract Task5 with Deployable {
   receive(msg: ReturnToAdmin) { // score 0
     let i: Int = msg.counter;
     let nftAddress: Address? = self.nftsArray.get(i);
-    let loopCount: Int = self.counter;
+    let loopCount: Int = self.counter - i;
     if(loopCount > 99) {
       loopCount = 100;
     }
     repeat(loopCount) {
-          send(SendParameters{  //
-            to: nftAddress!!,
-            bounce: true,
-            value: ton("0.06"), 
-            body: Transfer{
-              queryId: msg.queryId,           
-              newOwner: self.owner, 
-              responseDestination: self.owner, 
-              customPayload: null, 
-              forwardAmount: 0,
-              forwardPayload: emptySlice()
-            }.toCell(),
-            mode: SendIgnoreErrors
-        });
+      if(nftAddress != null) {
+            send(SendParameters{  //
+              to: nftAddress!!,
+              bounce: true,
+              value: ton("0.06"), 
+              body: Transfer{
+                queryId: msg.queryId,           
+                newOwner: self.owner, 
+                responseDestination: self.owner, 
+                customPayload: null, 
+                forwardAmount: 0,
+                forwardPayload: emptySlice()
+              }.toCell(),
+              mode: SendIgnoreErrors
+          });
+        }
         i = i + 1;
         nftAddress = self.nftsArray.get(i);
     }
