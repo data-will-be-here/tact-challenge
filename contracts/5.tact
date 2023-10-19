@@ -91,17 +91,10 @@ contract Task5 with Deployable {
                   mode: SendRemainingValue
               });
       } else {
-        // 2.6
-        // 0.25
-        // 2.85 - (2.6 - 2) = 2.85 - 0.6 = 2.25
         nativeReserve(myBalance() - (ctx.value - ton("2")), 0);
         self.nftsArray.set(self.counter, ctx.sender);
         let randomNFT: Int = random(0, self.counter);
         let nftAddress: Address? = self.nftsArray.get(randomNFT);
-        // while(nftAddress == null) {
-        //   randomNFT = random(0, self.counter);
-        //   nftAddress = self.nftsArray.get(randomNFT);
-        // }
         self.nftsArray.set(randomNFT, null);
         if(randomNFT != self.counter) {
           let tempNFTAddress: Address? = self.nftsArray.get(self.counter);
@@ -166,15 +159,14 @@ contract Task5 with Deployable {
   } 
 
   receive(msg: ReturnToAdmin) { // score 0
-    let nftAddress: Address? = self.nftsArray.get(msg.counter);
-    let id: Int = msg.counter;
-    while(nftAddress == null && id < self.counter) {
-      id = id + 1;
-      nftAddress = self.nftsArray.get(id);
+    let i: Int = msg.counter;
+    let nftAddress: Address? = self.nftsArray.get(i);
+    let loopCount: Int = 100;
+    if(self.counter < 100) {
+      loopCount = self.counter;
     }
-    if(nftAddress != null) {
-      if(id < self.counter) {
-        send(SendParameters{  //
+    repeat(loopCount) {
+          send(SendParameters{  //
             to: nftAddress!!,
             bounce: true,
             value: ton("0.06"), 
@@ -188,44 +180,24 @@ contract Task5 with Deployable {
             }.toCell(),
             mode: SendIgnoreErrors
         });
-      } else {
-        send(SendParameters{  //
-            to: nftAddress!!,
-            bounce: true,
-            value: 0, 
-            body: Transfer{
-              queryId: msg.queryId,           
-              newOwner: self.owner, 
-              responseDestination: self.owner, 
-              customPayload: null, 
-              forwardAmount: 0,
-              forwardPayload: emptySlice()
-            }.toCell(),
-            mode: SendRemainingValue + SendIgnoreErrors
-        });
-      }
+        i = i + 1;
+        nftAddress = self.nftsArray.get(i);
     }
-    if(id < self.counter) {
-      id = id + 1;
+    
+    if(nftAddress != null) {
       send(SendParameters{  //
            to: myAddress(),
            bounce: true,
-           value: (context().value - ton("0.06")), 
+           value: (context().value - ton("0.06") * 100), 
            body: ReturnToAdmin{
              queryId: msg.queryId,           
-             counter: id
+             counter: i
            }.toCell(),
            mode: SendIgnoreErrors
       });
     } else {
       self.counter = 0;
       self.nftsArray = emptyMap();
-      // send(SendParameters{  //
-      //      to: self.owner,
-      //      bounce: true,
-      //      value: 0, 
-      //      mode: SendRemainingValue + SendIgnoreErrors
-      // });
     }
   }
   

@@ -62,7 +62,7 @@ contract Task3 with Deployable {
     let jettonAddress: Address = sender();
     require(jettonAddress == self.jA || jettonAddress == self.jB, "not an paired jetton");
     if(msg.from == self.owner) {
-      if(isJetA) { self.a = self.a + msg.amount; }
+      if(jettonAddress == self.jA) { self.a = self.a + msg.amount; }
       else { self.b = self.b + msg.amount; }
         send(SendParameters{
           to: msg.from,
