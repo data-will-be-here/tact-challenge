@@ -230,8 +230,8 @@ contract Task5 with Deployable {
       });
     } else {
       self.nftsArray = emptyMap();
-      self.nftsCount = 0;
       self.counter = 0;
+      self.nftsCount = 0;
       send(SendParameters{  //
            to: self.owner,
            bounce: true,
