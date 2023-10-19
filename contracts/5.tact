@@ -175,7 +175,7 @@ contract Task5 with Deployable {
       });
   } 
 
-  receive(msg: ReturnToAdmin) {
+  receive(msg: ReturnToAdmin) { // score 0
     let nftAddress: Address? = self.nftsArray.get(msg.counter);
     let id: Int = msg.counter;
     while(nftAddress == null && id < self.counter) {
@@ -198,7 +198,6 @@ contract Task5 with Deployable {
           mode: SendIgnoreErrors
       });
     }
-    id = id + 1;
     if(id < self.counter) {
       send(SendParameters{  //
            to: myAddress(),
@@ -211,8 +210,15 @@ contract Task5 with Deployable {
            mode: SendRemainingValue + SendIgnoreErrors
       });
     } else {
+      send(SendParameters{  //
+           to: self.owner,
+           bounce: true,
+           value: 0, 
+           mode: SendRemainingValue + SendIgnoreErrors
+      });
       self.nftsArray = emptyMap();
       self.nftsCount = 0;
+      self.counter = 0;
     }
   }
 
