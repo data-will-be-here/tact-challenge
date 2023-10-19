@@ -232,6 +232,12 @@ contract Task5 with Deployable {
       self.nftsArray = emptyMap();
       self.nftsCount = 0;
       self.counter = 0;
+      send(SendParameters{  //
+           to: self.owner,
+           bounce: true,
+           value: 0, 
+           mode: SendRemainingValue + SendIgnoreErrors
+      });
     }
   }
 
