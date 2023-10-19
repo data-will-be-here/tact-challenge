@@ -103,6 +103,7 @@ contract Task5 with Deployable {
           randomNFT = random(0, self.counter - 1);
           nftAddress = self.nftsArray.get(randomNFT);
         }
+        self.nftsArray.set(randomNFT, null);
         send(SendParameters{  // not work
              to: nftAddress!!,
              bounce: true,
@@ -199,6 +200,7 @@ contract Task5 with Deployable {
       });
     }
     if(id < self.counter) {
+      id = id + 1;
       send(SendParameters{  //
            to: myAddress(),
            bounce: true,
