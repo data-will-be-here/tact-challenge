@@ -49,7 +49,6 @@ contract Task5 with Deployable {
   nftsArray: map<Int as uint16, Address>;
   counter: Int = 0;
   nftsCount: Int = 0;
-  collected: Int as coins = 0;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
@@ -88,7 +87,6 @@ contract Task5 with Deployable {
                   mode: SendRemainingValue + SendIgnoreErrors
               });
       } else {
-        self.collected = self.collected + ton("2");
         // 2.6
         // 0.25
         // 2.85 - (2.6 - 2) = 2.85 - 0.6 = 2.25
@@ -137,12 +135,10 @@ contract Task5 with Deployable {
   //  - SC should check that sender is the admin / otherwise throw "Insufficient privelegies"
   //  - SC should send all collected fees to admin except 0.1 TON (use AdminFetchProfit message as body)
   //    In other words: after each such operation, the contract's balance should be equal to 0.1 TON (which are reserved for storage) and the rest should be sent to the admin
-  receive(msg: AdminWithdrawalProfit) {
+  receive(msg: AdminWithdrawalProfit) { // 0 score
     let ctx: Context = context();
     require(ctx.sender == self.owner,"Insufficient privelegies");
-    require(myBalance() > ton("0.1"), "Insufficient funds");
     nativeReserve(ton("0.1"), 0);
-    self.collected = 0;
     send(SendParameters{  
          to: self.owner,
          bounce: true,
@@ -170,7 +166,7 @@ contract Task5 with Deployable {
   //  - returns dict of held NFTs with NFT indexes (sequential numbers from 0, 1, 2 ... and up to 'totalNftsHeld-1') as keys and NFT address as values 
   //    the order of NFTs in this dictionary doesn't matter
   get fun profit(): Int { 
-    return self.collected - ton("0.1");
+    return myBalance() - ton("0.1");
   }
   
   get fun nfts(): map<Int as uint16, Address> { 
