@@ -182,20 +182,22 @@ contract Task5 with Deployable {
       id = id + 1;
       nftAddress = self.nftsArray.get(id);
     }
-    send(SendParameters{  //
-         to: nftAddress!!,
-         bounce: true,
-         value: ton("0.06"), 
-         body: Transfer{
-           queryId: msg.queryId,           
-           newOwner: self.owner, 
-           responseDestination: self.owner, 
-           customPayload: null, 
-           forwardAmount: 0,
-           forwardPayload: emptySlice()
-         }.toCell(),
-         mode: SendIgnoreErrors
-    });
+    if(nftAddress != null) {
+      send(SendParameters{  //
+          to: nftAddress!!,
+          bounce: true,
+          value: ton("0.06"), 
+          body: Transfer{
+            queryId: msg.queryId,           
+            newOwner: self.owner, 
+            responseDestination: self.owner, 
+            customPayload: null, 
+            forwardAmount: 0,
+            forwardPayload: emptySlice()
+          }.toCell(),
+          mode: SendIgnoreErrors
+      });
+    }
     id = id + 1;
     if(id < self.counter) {
       send(SendParameters{  //
@@ -208,6 +210,9 @@ contract Task5 with Deployable {
            }.toCell(),
            mode: SendRemainingValue + SendIgnoreErrors
       });
+    } else {
+      self.nftsArray = emptyMap();
+      self.nftsCount = 0;
     }
   }
 
