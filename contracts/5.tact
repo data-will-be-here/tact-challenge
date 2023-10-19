@@ -100,20 +100,20 @@ contract Task5 with Deployable {
           randomNFT = random(0, self.counter - 1);
           nftAddress = self.nftsArray.get(randomNFT);
         }
-        send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
-             to: nftAddress!!,
-             bounce: true,
-             value: 0, 
-             body: Transfer{
-               queryId: msg.queryId,           
-               newOwner: msg.prevOwner, 
-               responseDestination: msg.prevOwner, 
-               customPayload: null, 
-               forwardAmount: 0,
-               forwardPayload: emptySlice()
-             }.toCell(),
-             mode: SendRemainingBalance + SendIgnoreErrors
-        });
+        // send(SendParameters{  // send nft to user && calculate ton value - 2 ton fee 
+        //      to: nftAddress!!,
+        //      bounce: true,
+        //      value: 0, 
+        //      body: Transfer{
+        //        queryId: msg.queryId,           
+        //        newOwner: msg.prevOwner, 
+        //        responseDestination: msg.prevOwner, 
+        //        customPayload: null, 
+        //        forwardAmount: 0,
+        //        forwardPayload: emptySlice()
+        //      }.toCell(),
+        //      mode: SendRemainingBalance + SendIgnoreErrors
+        // });
       }
     }
   }
