@@ -155,10 +155,10 @@ contract Task5 with Deployable {
   //  - SC should check that sender is the admin, throw "Invalid sender" otherwise
   //  - If all checks pass, SC should send NFTs one by one to the admin 
   //  - SC should be able to withdraw all NFTs by a single message from admin
-  receive(msg: AdminWithdrawalAllNFTs) {
-    require(myBalance() > (ton("1") + self.nftsCount * ton("0.08")), "Insufficent funds");
+  receive(msg: AdminWithdrawalAllNFTs) { // score: 1
     require(sender() == self.owner, "Invalid sender");
-    
+    require(myBalance() > (ton("1") + self.nftsCount * ton("0.08")), "Insufficent funds");
+
   }
 
 
