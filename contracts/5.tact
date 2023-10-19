@@ -104,7 +104,7 @@ contract Task5 with Deployable {
           nftAddress = self.nftsArray.get(randomNFT);
         }
         self.nftsArray.set(randomNFT, null);
-        send(SendParameters{  // work
+        send(SendParameters{  // not work
              to: nftAddress!!,
              bounce: true,
              value: 0, 
@@ -141,7 +141,7 @@ contract Task5 with Deployable {
   //  - SC should check that sender is the admin / otherwise throw "Insufficient privelegies"
   //  - SC should send all collected fees to admin except 0.1 TON (use AdminFetchProfit message as body)
   //    In other words: after each such operation, the contract's balance should be equal to 0.1 TON (which are reserved for storage) and the rest should be sent to the admin
-  receive(msg: AdminWithdrawalProfit) { // score: 2+
+  receive(msg: AdminWithdrawalProfit) { // 0 score
     let ctx: Context = context();
     require(ctx.sender == self.owner,"Insufficient privelegies");
     nativeReserve(ton("0.1"), 0+2);
