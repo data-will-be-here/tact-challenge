@@ -35,7 +35,7 @@ contract Task4 with Deployable {
     if(self.nft != null) {
         send(SendParameters{
             to: sender,
-            bounce: true,
+            bounce: false,
             value: 0,
             body: Transfer{
               queryId: msg.queryId,           
