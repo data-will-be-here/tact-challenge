@@ -90,17 +90,14 @@ contract Task3 with Deployable {
           dest = jettonAddress;
           to_recv = msg.amount;
         }
-      if(jettonAddress == self.jA) { // send B tokens, plus A tokens
-         if(jet1 >= to_recv && to_recv != 0) {
+        if(isJetA && (jet1 >= to_recv && to_recv != 0)) {
           self.a = self.a + msg.amount;
           self.b = self.b - to_recv;
         }
-      } else {
-        if(jet1 >= to_recv && to_recv != 0) {
+        if(isJetA == false && (jet1 >= to_recv && to_recv != 0)) {
           self.b = self.b + msg.amount;
           self.a = self.a - to_recv;
         }
-      }
       // if(jet1 < to_recv || to_recv == 0) {
       //   dest = jettonAddress;
       //   to_recv = msg.amount;
