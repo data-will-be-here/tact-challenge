@@ -73,7 +73,6 @@ contract Task3 with Deployable {
           bounce: true
       });
     } else {
-      
       let jet1: Int = self.a; // get B send A
       let jet2: Int = self.b;
       let dest: Address = self.jA;
@@ -82,7 +81,6 @@ contract Task3 with Deployable {
         jet2 = self.a;
         dest = self.jB;
       }
-      // Example formula for amountOfAJettonToSend in B->A swap will be
       let to_recv: Int = (jet1 * self.decimal / jet2) * msg.amount / self.decimal;
       if(jet1 < to_recv || to_recv == 0) {
           dest = jettonAddress;
@@ -96,7 +94,6 @@ contract Task3 with Deployable {
             self.a = self.a - to_recv;
           }
         }
-        
           send(SendParameters{
             to: dest,
             value: 0,
@@ -117,7 +114,7 @@ contract Task3 with Deployable {
 
   get fun price(token: Address): Int { 
     if(token == self.jB) {
-      return self.a * self.decimal / self.b; // amountOfJettonAOnContract * decimal / amountOfJettonBOnContract 10 * self.decimal / 2 = 5000000000
+      return self.a * self.decimal / self.b; 
     } 
       return self.b * self.decimal / self.a; //
   }
