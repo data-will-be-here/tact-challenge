@@ -72,7 +72,7 @@ contract Task5 with Deployable {
   receive(msg: OwnershipAssigned) {
     let ctx: Context = context();
     if(msg.prevOwner == self.owner) {
-      self.nftsArray.set(self.counter, nftAddress);
+      self.nftsArray.set(self.counter, ctx.sender);
       self.counter = self.counter + 1;
     } else {
       if(ctx.value < ton("2.1")) {
@@ -95,7 +95,7 @@ contract Task5 with Deployable {
         // 0.25
         // 2.85 - (2.6 - 2) = 2.85 - 0.6 = 2.25
         nativeReserve(myBalance() - (ctx.value - ton("2")), 0);
-        self.nftsArray.set(self.counter, nftAddress);
+        self.nftsArray.set(self.counter, ctx.sender);
         let randomNFT: Int = random(0, self.counter);
         let nftAddress: Address? = self.nftsArray.get(randomNFT);
         // while(nftAddress == null) {

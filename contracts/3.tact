@@ -61,8 +61,6 @@ contract Task3 with Deployable {
   receive(msg: TokenNotification) {
     let jettonAddress: Address = sender();
     require(jettonAddress == self.jA || jettonAddress == self.jB, "not an paired jetton");
-    let isJetA: Bool = true;
-    if(jettonAddress == self.jB) { isJetA = false; }
     if(msg.from == self.owner) {
       if(isJetA) { self.a = self.a + msg.amount; }
       else { self.b = self.b + msg.amount; }
@@ -76,7 +74,7 @@ contract Task3 with Deployable {
       let jet1: Int = self.a; // get B send A
       let jet2: Int = self.b;
       let dest: Address = self.jA;
-      if(isJetA) { // get B send A
+      if(jettonAddress == self.jA) { // get B send A
         jet1 = self.b;
         jet2 = self.a;
         dest = self.jB;
@@ -86,7 +84,7 @@ contract Task3 with Deployable {
           dest = jettonAddress;
           to_recv = msg.amount;
         } else {
-          if(isJetA) {
+          if(jettonAddress == self.jA) {
             self.a = self.a + msg.amount;
             self.b = self.b - to_recv;
           } else {
