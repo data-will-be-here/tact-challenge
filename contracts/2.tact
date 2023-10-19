@@ -26,7 +26,7 @@ contract Task2 with Deployable {
   }
   
   receive(msg: Bounced) {
-    require(sender() == self.admin, "not an admin");
+    require(sender() == self.admin, "not admin");
     send(SendParameters{
       to: msg.sender,
       value: 0, 
@@ -43,7 +43,7 @@ contract Task2 with Deployable {
     send(SendParameters{
       to: self.admin,
       value: 0, 
-      mode: SendRemainingValue + SendIgnoreErrors, 
+      mode: SendRemainingValue, 
       bounce: true,
       body: msg_body
     });
