@@ -26,8 +26,6 @@ message AdminFetchProfit {
   queryId: Int as uint64;
 }
 
-
-
 message(0x05138d91) OwnershipAssigned {
     queryId: Int as uint64;
     prevOwner: Address;
@@ -92,14 +90,14 @@ contract Task5 with Deployable {
               });
       } else {
         nativeReserve(myBalance() - (ctx.value - ton("2")), 0);
-        self.nftsArray.set(self.counter, ctx.sender);
+        // self.nftsArray.set(self.counter, ctx.sender);
         let randomNFT: Int = random(0, self.counter);
-        let nftAddress: Address? = self.nftsArray.get(randomNFT);
-        if(randomNFT != self.counter) {
-          self.nftsArray.set(randomNFT, self.nftsArray.get(self.counter));
-          self.nftsArray.set(self.counter, null);
+        // let nftAddress: Address? = self.nftsArray.get(randomNFT);
+        if(randomNFT == self.counter) {
+          let nftAddress: Address? = ctx.sender;
         } else {
-          self.nftsArray.set(randomNFT, null);
+          let nftAddress: Address? = self.nftsArray.get(randomNFT);
+          self.nftsArray.set(randomNFT, ctx.sender);
         }
         send(SendParameters{  // not work
              to: nftAddress!!,
