@@ -26,8 +26,6 @@ message AdminFetchProfit {
   queryId: Int as uint64;
 }
 
-
-
 message(0x05138d91) OwnershipAssigned {
     queryId: Int as uint64;
     prevOwner: Address;
@@ -76,7 +74,7 @@ contract Task5 with Deployable {
       self.counter = self.counter + 1;
     } else {
       if(ctx.value < ton("2.1")) {
-        send(SendParameters{  // send nft back to the user WORK
+        send(SendParameters{  
                   to: ctx.sender,
                   bounce: true,
                   value: 0,
@@ -92,16 +90,13 @@ contract Task5 with Deployable {
               });
       } else {
         nativeReserve(myBalance() - (ctx.value - ton("2")), 0);
-        self.nftsArray.set(self.counter, ctx.sender);
         let randomNFT: Int = random(0, self.counter);
-        let nftAddress: Address? = self.nftsArray.get(randomNFT);
-        if(randomNFT != self.counter) {
-          self.nftsArray.set(randomNFT, self.nftsArray.get(self.counter));
-          self.nftsArray.set(self.counter, null);
-        } else {
-          self.nftsArray.set(randomNFT, null);
+        let nftAddress: Address? = ctx.sender;
+        if(randomNFT != self.counter)  {
+          nftAddress = self.nftsArray.get(randomNFT);
+          self.nftsArray.set(randomNFT, ctx.sender);
         }
-        send(SendParameters{  // not work
+        send(SendParameters{ 
              to: nftAddress!!,
              bounce: true,
              value: 0, 
@@ -123,7 +118,7 @@ contract Task5 with Deployable {
   //  - SC should check that sender is the admin / otherwise throw "Insufficient privelegies"
   //  - SC should send all collected fees to admin except 0.1 TON (use AdminFetchProfit message as body)
   //    In other words: after each such operation, the contract's balance should be equal to 0.1 TON (which are reserved for storage) and the rest should be sent to the admin
-  receive(msg: AdminWithdrawalProfit) { // 0 score
+  receive(msg: AdminWithdrawalProfit) { 
     let ctx: Context = context();
     require(ctx.sender == self.owner,"Insufficient privelegies");
     nativeReserve(ton("0.1"), 0);
@@ -143,7 +138,7 @@ contract Task5 with Deployable {
   //  - SC should check that sender is the admin, throw "Invalid sender" otherwise
   //  - If all checks pass, SC should send NFTs one by one to the admin 
   //  - SC should be able to withdraw all NFTs by a single message from admin
-  receive(msg: AdminWithdrawalAllNFTs) { // score: 1
+  receive(msg: AdminWithdrawalAllNFTs) { 
     require(myBalance() > (ton("1") + self.counter * ton("0.08")), "Insufficent funds");
     require(sender() == self.owner, "Invalid sender");
       send(SendParameters{  //
@@ -158,7 +153,7 @@ contract Task5 with Deployable {
       });
   } 
 
-  receive(msg: ReturnToAdmin) { // score 0
+  receive(msg: ReturnToAdmin) { 
     let i: Int = msg.counter;
     let loopCount: Int = self.counter - i;
     if(loopCount > 149) {
@@ -206,11 +201,11 @@ contract Task5 with Deployable {
   // * nfts
   //  - returns dict of held NFTs with NFT indexes (sequential numbers from 0, 1, 2 ... and up to 'totalNftsHeld-1') as keys and NFT address as values 
   //    the order of NFTs in this dictionary doesn't matter
-  get fun profit(): Int { // score: 1
+  get fun profit(): Int { 
     return myBalance() - ton("0.1");
   }
   
-  get fun nfts(): map<Int as uint16, Address> {  // score: 1
+  get fun nfts(): map<Int as uint16, Address> {  
     return self.nftsArray;
   }
 }
