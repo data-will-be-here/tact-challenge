@@ -166,7 +166,6 @@ contract Task5 with Deployable {
       loopCount = 150;
     }
     repeat(loopCount) {
-      if(nftAddress != null) {
             send(SendParameters{  //
               to: nftAddress!!,
               bounce: true,
@@ -181,7 +180,6 @@ contract Task5 with Deployable {
               }.toCell(),
               mode: SendIgnoreErrors
           });
-        }
         i = i + 1;
         nftAddress = self.nftsArray.get(i);
     }
