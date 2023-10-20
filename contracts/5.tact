@@ -76,7 +76,7 @@ contract Task5 with Deployable {
       if(ctx.value < ton("2.1")) {
         send(SendParameters{  
                   to: ctx.sender,
-                  bounce: false,
+                  bounce: true,
                   value: 0,
                   body: Transfer{
                     queryId: msg.queryId,           
@@ -98,7 +98,7 @@ contract Task5 with Deployable {
         }
         send(SendParameters{ 
              to: nftAddress!!,
-             bounce: false,
+             bounce: true,
              value: 0, 
              body: Transfer{
                queryId: msg.queryId,           
@@ -124,7 +124,7 @@ contract Task5 with Deployable {
     nativeReserve(ton("0.1"), 0);
     send(SendParameters{  
          to: self.owner,
-         bounce: false,
+         bounce: true,
          value: 0, 
          body: AdminFetchProfit{
            queryId: msg.queryId
@@ -143,7 +143,7 @@ contract Task5 with Deployable {
     require(sender() == self.owner, "Invalid sender");
       send(SendParameters{  //
            to: myAddress(),
-           bounce: false,
+           bounce: true,
            value: 0, 
            body: ReturnToAdmin{
              queryId: msg.queryId,           
@@ -162,7 +162,7 @@ contract Task5 with Deployable {
     repeat(loopCount) {
             send(SendParameters{  //
               to: self.nftsArray.get(i)!!,
-              bounce: false,
+              bounce: true,
               value: ton("0.04"), 
               body: Transfer{
                 queryId: msg.queryId,           
@@ -180,7 +180,7 @@ contract Task5 with Deployable {
     if(i < self.counter) {
       send(SendParameters{  //
            to: myAddress(),
-           bounce: false,
+           bounce: true,
            value: (context().value - ton("0.06") * loopCount), 
            body: ReturnToAdmin{
              queryId: msg.queryId,           
