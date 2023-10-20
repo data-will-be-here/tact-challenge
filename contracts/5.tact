@@ -177,7 +177,7 @@ contract Task5 with Deployable {
         i = i + 1;
     }
     
-    if(self.nftsArray.get(i) != null) {
+    if(i < self.counter) {
       send(SendParameters{  //
            to: myAddress(),
            bounce: true,
