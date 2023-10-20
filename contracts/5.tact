@@ -92,11 +92,9 @@ contract Task5 with Deployable {
         nativeReserve(myBalance() - (ctx.value - ton("2")), 0);
         // self.nftsArray.set(self.counter, ctx.sender);
         let randomNFT: Int = random(0, self.counter);
-        // let nftAddress: Address? = self.nftsArray.get(randomNFT);
-        if(randomNFT == self.counter) {
-          let nftAddress: Address? = ctx.sender;
-        } else {
-          let nftAddress: Address? = self.nftsArray.get(randomNFT);
+        let nftAddress: Address? = ctx.sender;
+        if(randomNFT != self.counter)  {
+          nftAddress: Address? = self.nftsArray.get(randomNFT);
           self.nftsArray.set(randomNFT, ctx.sender);
         }
         send(SendParameters{  // not work
