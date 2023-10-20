@@ -35,6 +35,7 @@ message(0x05138d91) OwnershipAssigned {
 }
 
 message ReturnToAdmin {
+  queryId: Int as uint64;
   counter: Int;
 }
 
@@ -149,6 +150,7 @@ contract Task5 with Deployable {
            bounce: true,
            value: 0, 
            body: ReturnToAdmin{
+             queryId: msg.queryId,           
              counter: 0
            }.toCell(),
            mode: SendRemainingValue + SendIgnoreErrors
@@ -169,7 +171,7 @@ contract Task5 with Deployable {
               bounce: true,
               value: ton("0.06"), 
               body: Transfer{
-                queryId: 0,           
+                queryId: msg.queryId,           
                 newOwner: self.owner, 
                 responseDestination: self.owner, 
                 customPayload: null, 
@@ -189,6 +191,7 @@ contract Task5 with Deployable {
            bounce: true,
            value: (context().value - ton("0.06") * loopCount), 
            body: ReturnToAdmin{
+             queryId: msg.queryId,           
              counter: i
            }.toCell(),
            mode: SendIgnoreErrors
