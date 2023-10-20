@@ -68,7 +68,7 @@ contract Task3 with Deployable {
       let jet1: Int = self.a; // get B send A
       let jet2: Int = self.b;
       // let dest: Address = self.jA;
-      if(jettonAddress == self.jA) { // get B send A
+      if(jettonAddress == self.jA) { //  get B send A 
         jet1 = self.b;
         jet2 = self.a;
       }
