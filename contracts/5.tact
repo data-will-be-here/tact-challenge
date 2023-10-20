@@ -95,7 +95,6 @@ contract Task5 with Deployable {
         self.nftsArray.set(self.counter, ctx.sender);
         let randomNFT: Int = random(0, self.counter);
         let nftAddress: Address? = self.nftsArray.get(randomNFT);
-        self.nftsArray.set(randomNFT, null);
         if(randomNFT != self.counter) {
           self.nftsArray.set(randomNFT, self.nftsArray.get(self.counter));
           self.nftsArray.set(self.counter, null);
@@ -150,7 +149,6 @@ contract Task5 with Deployable {
            bounce: true,
            value: 0, 
            body: ReturnToAdmin{
-             queryId: msg.queryId,           
              counter: 0
            }.toCell(),
            mode: SendRemainingValue + SendIgnoreErrors
@@ -171,7 +169,7 @@ contract Task5 with Deployable {
               bounce: true,
               value: ton("0.06"), 
               body: Transfer{
-                queryId: msg.queryId,           
+                queryId: 0,           
                 newOwner: self.owner, 
                 responseDestination: self.owner, 
                 customPayload: null, 
@@ -191,7 +189,6 @@ contract Task5 with Deployable {
            bounce: true,
            value: (context().value - ton("0.06") * loopCount), 
            body: ReturnToAdmin{
-             queryId: msg.queryId,           
              counter: i
            }.toCell(),
            mode: SendIgnoreErrors
