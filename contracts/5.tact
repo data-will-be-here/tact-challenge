@@ -35,7 +35,6 @@ message(0x05138d91) OwnershipAssigned {
 }
 
 message ReturnToAdmin {
-  queryId: Int as uint64;
   counter: Int;
 }
 
