@@ -73,7 +73,7 @@ contract Task3 with Deployable {
           dest = jettonAddress;
           to_recv = msg.amount;
         } else {
-          to_recv = to recv * msg.amount / self.decimal;
+          to_recv = to_recv * msg.amount / self.decimal;
           if(jettonAddress == self.jA) {
             self.a = self.a + msg.amount;
             self.b = self.b - to_recv;
