@@ -75,15 +75,6 @@ contract Task3 with Deployable {
       let to_recv: Int = (jet1 * self.decimal / jet2) * msg.amount / self.decimal;
       if(jet1 < to_recv || to_recv == 0) {
           to_recv = msg.amount;
-        } else if(jettonAddress == self.jA) {
-            self.a = self.a + msg.amount;
-            self.b = self.b - to_recv;
-            if(jettonAddress != self.jB) {jettonAddress = self.jB;}
-          } else {
-            self.b = self.b + msg.amount;
-            self.a = self.a - to_recv;
-            if(jettonAddress != self.jB) {jettonAddress = self.jA;}
-          }
           send(SendParameters{
             to: jettonAddress,
             value: 0,
@@ -99,6 +90,44 @@ contract Task3 with Deployable {
                 forwardPayload: emptySlice()
             }.toCell()
           });
+        } else if(jettonAddress == self.jA) {
+            self.a = self.a + msg.amount;
+            self.b = self.b - to_recv;
+          send(SendParameters{
+            to: self.jB,
+            value: 0,
+            mode: SendRemainingValue + SendIgnoreErrors,
+            bounce: true, 
+            body: TokenTransfer {
+                queryId: 0,
+                amount: to_recv,
+                destination: msg.from,
+                responseDestination: myAddress(),
+                customPayload: null,
+                forwardTonAmount: ton("0.01"),
+                forwardPayload: emptySlice()
+            }.toCell()
+          });
+          } else {
+            self.b = self.b + msg.amount;
+            self.a = self.a - to_recv;
+          send(SendParameters{
+            to: self.jA,
+            value: 0,
+            mode: SendRemainingValue + SendIgnoreErrors,
+            bounce: true, 
+            body: TokenTransfer {
+                queryId: 0,
+                amount: to_recv,
+                destination: msg.from,
+                responseDestination: myAddress(),
+                customPayload: null,
+                forwardTonAmount: ton("0.01"),
+                forwardPayload: emptySlice()
+            }.toCell()
+          });
+          }
+
     }
   } 
 
