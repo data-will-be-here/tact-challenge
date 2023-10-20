@@ -65,24 +65,22 @@ contract Task3 with Deployable {
       if(jettonAddress == self.jA) { self.a = self.a + msg.amount; }
       else { self.b = self.b + msg.amount; }
     } else {
-      let dest: Address? = null;
       let to_recv: Int = self.price(jettonAddress) * msg.amount / self.decimal;
       // let to_recv: Int = (jet1 * self.decimal / jet2) * msg.amount / self.decimal;
       // if(jet1 < to_recv || to_recv == 0) {
       if((jettonAddress == self.jA && self.b < to_recv) || (jettonAddress == self.jB && self.a < to_recv) || to_recv == 0) {
-          dest = jettonAddress;
           to_recv = msg.amount;
         } else if(jettonAddress == self.jA) {
             self.a = self.a + msg.amount;
             self.b = self.b - to_recv;
-            dest = self.jB;
+            jettonAddress = self.jB;
           } else {
             self.b = self.b + msg.amount;
             self.a = self.a - to_recv;
-            dest = self.jA;
+            jettonAddress = self.jA;
           }
           send(SendParameters{
-            to: dest!!,
+            to: jettonAddress,
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
             bounce: true, 
