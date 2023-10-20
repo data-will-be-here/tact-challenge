@@ -85,7 +85,7 @@ contract Task3 with Deployable {
           }
         }
           send(SendParameters{
-            to: dest,
+            to: dest!!,
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
             bounce: true, 
