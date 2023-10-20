@@ -73,7 +73,7 @@ contract Task3 with Deployable {
       //   jet2 = self.a;
       // }
       let to_recv: Int = self.price(jettonAddress) * msg.amount / self.decimal;
-      if((jettonAddress = self.jA && self.b < to_recv) || (jettonAddress = self.jB && self.a < to_recv) || to_recv == 0) {
+      if((jettonAddress == self.jA && self.b < to_recv) || (jettonAddress == self.jB && self.a < to_recv) || to_recv == 0) {
           to_recv = msg.amount;
         } else {
           if(jettonAddress == self.jA) {
