@@ -26,6 +26,8 @@ message AdminFetchProfit {
   queryId: Int as uint64;
 }
 
+
+
 message(0x05138d91) OwnershipAssigned {
     queryId: Int as uint64;
     prevOwner: Address;
@@ -90,12 +92,14 @@ contract Task5 with Deployable {
               });
       } else {
         nativeReserve(myBalance() - (ctx.value - ton("2")), 0);
-        // self.nftsArray.set(self.counter, ctx.sender);
+        self.nftsArray.set(self.counter, ctx.sender);
         let randomNFT: Int = random(0, self.counter);
-        let nftAddress: Address? = ctx.sender;
-        if(randomNFT != self.counter)  {
-          nftAddress = self.nftsArray.get(randomNFT);
-          self.nftsArray.set(randomNFT, ctx.sender);
+        let nftAddress: Address? = self.nftsArray.get(randomNFT);
+        if(randomNFT != self.counter) {
+          self.nftsArray.set(randomNFT, self.nftsArray.get(self.counter));
+          self.nftsArray.set(self.counter, null);
+        } else {
+          self.nftsArray.set(randomNFT, null);
         }
         send(SendParameters{  // not work
              to: nftAddress!!,
@@ -156,16 +160,15 @@ contract Task5 with Deployable {
 
   receive(msg: ReturnToAdmin) { // score 0
     let i: Int = msg.counter;
-    let nftAddress: Address? = self.nftsArray.get(i);
     let loopCount: Int = self.counter - i;
     if(loopCount > 149) {
       loopCount = 150;
     }
     repeat(loopCount) {
             send(SendParameters{  //
-              to: nftAddress!!,
+              to: self.nftsArray.get(i)!!,
               bounce: true,
-              value: ton("0.06"), 
+              value: ton("0.04"), 
               body: Transfer{
                 queryId: msg.queryId,           
                 newOwner: self.owner, 
@@ -177,14 +180,13 @@ contract Task5 with Deployable {
               mode: SendIgnoreErrors
           });
         i = i + 1;
-        nftAddress = self.nftsArray.get(i);
     }
     
-    if(nftAddress != null) {
+    if(self.nftsArray.get(i) != null) {
       send(SendParameters{  //
            to: myAddress(),
            bounce: true,
-           value: (context().value - ton("0.04") * loopCount), 
+           value: (context().value - ton("0.06") * loopCount), 
            body: ReturnToAdmin{
              queryId: msg.queryId,           
              counter: i
