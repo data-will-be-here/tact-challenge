@@ -65,12 +65,19 @@ contract Task3 with Deployable {
       if(jettonAddress == self.jA) { self.a = self.a + msg.amount; }
       else { self.b = self.b + msg.amount; }
     } else {
-      let to_recv: Int = self.price(jettonAddress) * msg.amount / self.decimal;
-      // let to_recv: Int = (jet1 * self.decimal / jet2) * msg.amount / self.decimal;
-      // if(jet1 < to_recv || to_recv == 0) {
-      if((jettonAddress == self.jA && self.b < to_recv) || (jettonAddress == self.jB && self.a < to_recv) || to_recv == 0) {
+      let jet1: Int = self.a; // get B send A
+      let jet2: Int = self.b;
+      // let dest: Address = self.jA;
+      if(jettonAddress == self.jA) { // get B send A
+        jet1 = self.b;
+        jet2 = self.a;
+      }
+      let to_recv: Int = (jet1 * self.decimal / jet2) * msg.amount / self.decimal;
+      if(jet1 < to_recv || to_recv == 0) {
+          // dest = jettonAddress;
           to_recv = msg.amount;
-        } else if(jettonAddress == self.jA) {
+        } else {
+          if(jettonAddress == self.jA) {
             self.a = self.a + msg.amount;
             self.b = self.b - to_recv;
             jettonAddress = self.jB;
@@ -79,6 +86,7 @@ contract Task3 with Deployable {
             self.a = self.a - to_recv;
             jettonAddress = self.jA;
           }
+        }
           send(SendParameters{
             to: jettonAddress,
             value: 0,
