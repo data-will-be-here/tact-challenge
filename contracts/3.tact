@@ -78,11 +78,11 @@ contract Task3 with Deployable {
         } else if(jettonAddress == self.jA) {
             self.a = self.a + msg.amount;
             self.b = self.b - to_recv;
-            jettonAddress = self.jB;
+            if(jettonAddress != self.jB) {jettonAddress = self.jB;}
           } else {
             self.b = self.b + msg.amount;
             self.a = self.a - to_recv;
-            jettonAddress = self.jA;
+            if(jettonAddress != self.jB) {jettonAddress = self.jA;}
           }
           send(SendParameters{
             to: jettonAddress,
